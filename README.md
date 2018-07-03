@@ -71,7 +71,7 @@ function read(): Task[]
 Receive tasks, turn them into raw data, write to database and call [sync](#sync) function with this raw data.
 
 ```typescript
-function write(Task[]): void
+function write(tasks: Task[]): void
 ```
 
 ### Sync
@@ -79,7 +79,7 @@ function write(Task[]): void
 Receive raw data from [write](#write) and update the Gist file.
 
 ```typescript
-function sync(string): void
+function sync(data: string): void
 ```
 
 ## Task
@@ -186,7 +186,7 @@ function delete(id: Id): void
 ### Helpers
 #### Generate Id
 
-Generate a unique [Id](#id) from a list of [Tasks](#model).
+Generate a unique [Id](#id) from a list of [Task](#model).
 
 ```typescript
 function generateId(tasks: Task[]): Id
