@@ -139,14 +139,16 @@ function generateId(tasks: Task[]): Id
 
 It should follow this algorithm:
 
-```
-Let newid = 1
+```typescript
+let newid = 1
 
-While id exists in list of task
-  newid ++
-End While
-
-Return newid
+while (true) {
+  if (tasks.map(t => t.id).indexOf(newid) !== -1) {
+    return newid
+  }
+  
+  newid++
+}
 ```
 
 #### Stringify list task
@@ -160,11 +162,11 @@ Should transform all properties of a Task to string (in order to prepare the tas
   - DateTime: should display a duration between now (the moment when the list is displayed) and the datetime (see Duration just above). If duration is positive, should display `in <value> <unit>`, otherwise `<value> <unit> ago`.
   
 ```typescript
-type TaskString<T> = {
-  [P in keyof T]: string;
+type StringVal<T> = {
+  [StringVal in keyof T]: string;
 }
 
-function toStringList(task: Task): TaskString<Task>
+function toStringList(task: Task): StringVal<Task>
 ```
 
 #### Stringify info task
@@ -178,11 +180,11 @@ Should transform all properties of a Task to string (in order to prepare the tas
   - DateTime: should display the full date at locale format (%c).
 
 ```typescript
-type TaskString<T> = {
-  [P in keyof T]: string;
+type StringVal<T> = {
+  [StringVal in keyof T]: string;
 }
 
-function toStringInfo(task: Task): TaskString<Task>
+function toStringInfo(task: Task): StringVal<Task>
 ```
 
 ### Create
