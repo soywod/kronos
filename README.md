@@ -2,17 +2,14 @@
 
 Kronos is a synchronized cross-platform task and time manager. In fact, it's a group of clients which follow a protocol and synchronize data with a common secret [Gist](https://gist.github.com). This document aims to be this protocol.
 
-## List of available clients
+## List of clients
 
   - [Kronos.vim](https://github.com/kronos-io/kronos.vim)
- 
-## List of potential clients
-
   - Kronos.web
   - Kronos.mobile
   - Kronos.cli
   - Kronos.desktop
-  - ...
+  - ... 
 
 ## Table of contents
 
@@ -45,7 +42,7 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
 Tasks are stored in a local database (file), one line = one task at JSON format.
 No last empty line. Eg for a 2 tasks database:
 
-```
+```JSON
 {"desc": "task1", "id": 4, ...}
 {"desc": "task2", "id": 12, ...}
 ```
@@ -77,41 +74,46 @@ function sync(string): void
 ## Task
 ### Model
 
-```
-enum Mode
+```typescript
+enum Mode {
   List,
   Info,
+}
 
-interface Stringable
-  public toString(mode: Mode): string
+interface Stringable {
+  toString: (mode: Mode) => string
+}
 
-type Task
+type Id = number & Stringable & {
+  generate: (database: Task[]) => Id
+}
+
+type Desc = string
+
+type Tag = string
+
+type Duration = number & Stringable
+
+type DateTime = number & Stringable & {
+  diff: (datetime: DateTime): Duration
+}
+
+interface Task {
   id: Id
   desc: Desc
   tags: Tag[]
   active: DateTime
   lastactive: DateTime
-  due: Due
-  worktime: Duration
+  due: DateTime
   done: DateTime
+  worktime: Duration
+  toString: (mode: Mode) => string
+}
 
-type Id extends int implements Stringable
-  static generate(tasks: Task[]): Id
-  pattern: > 0
-  
-type Desc extends string implements Stringable
+// Helpers
 
-type Tag extends string implements Stringable
-  pattern: [a-zA-Z0-9\-_]*
-
-type Due extends DateTime implements Stringable
-  static fromString(format: string): Due
-
-type DateTime extends int implements Stringable
-  pattern: timestamp
-  diff(datetime: DateTime): Duration
-
-type Duration extends int implements Stringable
+function generateId(database: Task[]): Id
+function dateTimeDiff(d1: DateTime, d2: DateTime): number
 ```
 
 ### Create
