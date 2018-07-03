@@ -122,7 +122,7 @@ type Duration = number
 
 #### DateTime
 
-Should be an `timestamp`.
+Should be a `timestamp`.
 
 ```typescript
 type Duration = number
@@ -131,11 +131,58 @@ type Duration = number
 ### Helpers
 #### Generate Id
 
-Should generate a unique [Id](#id) from a list of Tasks.
-It should start by `1`. If the task does not exist, return this id, otherwise increment and tries with `2` etc.
+Should generate a unique [Id](#id) from a list of Task.
 
 ```typescript
-function generateId(database: Task[]): Id
+function generateId(tasks: Task[]): Id
+```
+
+It should follow this algorithm:
+
+```
+Let newid = 1
+
+While id exists in list of task
+  newid ++
+End While
+
+Return newid
+```
+
+#### Stringify list task
+
+Should transform all properties of a Task to string (in order to prepare the task to be displayed in an List context).
+
+  - Id: if task is done, should display `-`, otherwise should display the id
+  - Desc: should display desc
+  - Tags: should display all tags separated by a space
+  - Duration: should display `<value> <unit>`. Should display only one unit, the bigger one. For example, for a duration of 3h 45min 10s, should display `in 4h`. For a duration of -3days 14h 11min 10s, should display `3d ago`. Table of unit: y for years, mo for month, w for week, d for day, h for hour, min for minute, s for second.
+  - DateTime: should display a duration between now (the moment when the list is displayed) and the datetime (see Duration just above). If duration is positive, should display `in <value> <unit>`, otherwise `<value> <unit> ago`.
+  
+```typescript
+type TaskString<T> = {
+  [P in keyof T]: string;
+}
+
+function toStringList(task: Task): TaskString<Task>
+```
+
+#### Stringify info task
+
+Should transform all properties of a Task to string (in order to prepare the task to be displayed in an Info context).
+
+  - Id: should display the id
+  - Desc: should display desc
+  - Tags: should display all tags separated by a space
+  - Duration: should display `<value> <unit>`. Should display the full duration. For example, for a duration of 3h 45min 10s, should display `3h 45min 10s`. For a duration of -3days 14h 11min 10s, should display `3d 14h 11min 10s`. Table of unit: y for years, mo for month, w for week, d for day, h for hour, min for minute, s for second.
+  - DateTime: should display the full date at locale format (%c).
+
+```typescript
+type TaskString<T> = {
+  [P in keyof T]: string;
+}
+
+function toStringInfo(task: Task): TaskString<Task>
 ```
 
 ### Create
