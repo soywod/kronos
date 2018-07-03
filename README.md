@@ -40,16 +40,17 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
 ## Database
 
 Tasks are stored in a local database (file), one line = one task at JSON format.
-No last empty line. Eg for a 2 tasks database:
+No last empty line.
 
-```JSON
+```typescript
+// Example for a 2 tasks database
 {"desc": "task1", "id": 4, ...}
 {"desc": "task2", "id": 12, ...}
 ```
 
 ### Read
 
-Should read raw data from database and return a list of [Tasks](#model).
+Should read raw data from database and return a list of [Task](#model).
 
 ```typescript
 function read(): Task[]
@@ -75,29 +76,6 @@ function sync(string): void
 ### Model
 
 ```typescript
-enum Mode {
-  List,
-  Info,
-}
-
-interface Stringable {
-  toString: (mode: Mode) => string
-}
-
-type Id = number & Stringable & {
-  generate: (database: Task[]) => Id
-}
-
-type Desc = string
-
-type Tag = string
-
-type Duration = number & Stringable
-
-type DateTime = number & Stringable & {
-  diff: (datetime: DateTime): Duration
-}
-
 interface Task {
   id: Id
   desc: Desc
@@ -107,25 +85,69 @@ interface Task {
   due: DateTime
   done: DateTime
   worktime: Duration
-  toString: (mode: Mode) => string
 }
+```
 
-// Helpers
+#### Id
 
+Should be an `integer` > 0.
+
+```typescript
+type Id = number
+```
+
+#### Desc
+
+Should be a `string`.
+
+```typescript
+type Desc = string
+```
+
+#### Tag
+
+Should be a `string` matching `[0-9a-zA-Z\-_]*`.
+
+```typescript
+type Tag = string
+```
+
+#### Duration
+
+Should be an `integer`.
+
+```typescript
+type Duration = number
+```
+
+#### DateTime
+
+Should be an `timestamp`.
+
+```typescript
+type Duration = number
+```
+
+### Helpers
+#### Generate Id
+
+Should generate a unique [Id](#id) from a list of Tasks.
+It should start by `1`. If the task does not exist, return this id, otherwise increment and tries with `2` etc.
+
+```typescript
 function generateId(database: Task[]): Id
-function dateTimeDiff(d1: DateTime, d2: DateTime): number
 ```
 
 ### Create
 
 ```typescript
-function create(Task): int
+function create(task: Task): Id
 ```
 
 ### Read
 
 ```typescript
-function read(int): Task
+function read(id: Id): Task
 ```
 
 ### Read All
@@ -137,13 +159,13 @@ function readAll(): Task[]
 ### Update
 
 ```typescript
-function update(int, Subtype<Task>): void
+function update(id Id, params Subtype<Task>): void
 ```
 
 ### Delete
 
 ```typescript
-function delete(int): void
+function delete(id: Id): void
 ```
 
 ## User interface
