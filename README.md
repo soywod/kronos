@@ -1,6 +1,6 @@
 # Kronos protocol
 
-Kronos is a synchronized cross-platform task and time manager. In fact, it's a group of clients which follow a protocol and synchronize data with a common secret [Gist](https://gist.github.com). This document aims to be this protocol.
+Kronos is a synchronized cross-platform task and time manager. In fact, it's a group of clients which follow this protocol. Feel free to contribute, share some idea, or even code a Kronos client.
 
 ## List of clients
 
@@ -47,6 +47,10 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
       * [Done](#done)
       * [Undone](#undone)
       * [Worktime](#worktime)
+  * [Configuration](#configuration)
+    * [Database](#database-1)
+    * [Gist sync](#gist-sync)
+    * [Hide done](#hide-done)
 
 ## Database
 
@@ -61,7 +65,7 @@ No last empty line.
 
 ### Read
 
-Read raw data from database and return a list of [Task](#model).
+Read raw data from database and return a list of [Task](#model). The database path is based on the [database](#database-1) user configuration.
 
 ```typescript
 function read(): Task[]
@@ -69,18 +73,10 @@ function read(): Task[]
 
 ### Write
 
-Receive tasks, turn them into raw data, write to database and call [sync](#sync) function with this raw data.
+Transform a list of [Task](#model) to raw data and write them to database. If the user configuration [gist sync](#gist-sync) is activated, synchronise this raw data with the user Gist.
 
 ```typescript
 function write(tasks: Task[]): void
-```
-
-### Sync
-
-Receive raw data from [write](#write) and update the Gist file.
-
-```typescript
-function sync(data: string): void
 ```
 
 ## Task
@@ -268,7 +264,7 @@ The command name is `kronos`, and has a shortcut named `k`. In some specific cas
 
 ### GUI
 
-When the GUI mode is started, the [list](#list) action is triggered as main function. So there is no action `list` in GUI mode. But there is an action `toggle hide done` to show and hide done tasks in this list.
+When the GUI mode is started, the [list](#list) action is triggered as main function. So there is no action `list` in GUI mode. But there is an action `toggle hide done` to show and hide done tasks in this list. By default, the first time this `list` is showed up, done tasks are hidden. To change the default behaviour, check out the user configuration [Hide done](#hide-done).
 
 Actions can be triggered by screen events (mouse click, finger touch) or by keyboard events (shortcuts). The list and the info should show data in realtime, otherwise a `refresh` action need to be implemented, in order to refresh manually the interface.
 
@@ -349,3 +345,8 @@ function toggleHideDone(): void
 ```typescript
 function worktime(int): void
 ```
+
+## Configuration
+### Database
+### Gist sync
+### Hide done
