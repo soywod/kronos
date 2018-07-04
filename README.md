@@ -463,6 +463,17 @@ worktime("+tag1 +tag2")
 ```
 
 ## Configuration
+
+The user is able to configure some options.
+
 ### Database
+
+Contains the path to the database file. In some special case, when the database can't be stored as a file, refer to the database key name. Default: `ROOT_APP_FOLDER/kronos.db`.
+
 ### Gist sync
+
+Contains a boolean. If `true`, activate the [Gist](https://gist.github.com/) sync. In this case, the GitHub token is prompted each time the application starts, till the user enters a valid token or the user disable this option. Default: `false`.
+
 ### Hide done
+
+Contains a boolean. If `true`, when the [list](#list) action is triggered, does not display done tasks. Default: `true`.
