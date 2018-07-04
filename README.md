@@ -255,6 +255,7 @@ The command name is `kronos`, and has a shortcut named `k`. In some specific cas
 | --- | --- | --- |
 | `add` | `a` | [Add](#add) |
 | `info` | `i` | [Info](#info) |
+| `list` | `l` | [List](#list) |
 | `update` | `u` | [Update](#update) |
 | `delete` | `D` | [Delete](#delete) |
 | `start` | `s` | [Start](#start) |
@@ -267,17 +268,19 @@ The command name is `kronos`, and has a shortcut named `k`. In some specific cas
 
 ### GUI
 
+When the GUI mode is started, the [list](#list) action is triggered as main function. So there is no action `list` in GUI mode. But there is an action `toggle hide done` to show and hide done tasks in this list.
+
 Actions can be triggered by screen events (mouse click, finger touch) or by keyboard events (shortcuts). The list and the info should show data in realtime, otherwise a `refresh` action need to be implemented, in order to refresh manually the interface.
 
-| Action | Mappings | Link |
-| --- | :---: | --- |
+| Action | Key mappings | Link |
+| --- | --- | --- |
 | `add` | `<a>` | [Add](#add) |
 | `info` | `<i>` | [Info](#info) |
 | `update` | `<u>` | [Update](#update) |
 | `delete` | `<D>`, `<Backspace>`, `<Del>` | [Delete](#delete) |
 | `start` | `<s>` | [Start](#start) |
 | `stop` | `<S>` | [Stop](#stop) |
-| `toggle` | `<Enter>`, `<t>` | [Toggle](#toggle) |
+| `toggle` | `<t>`, `<Enter>` | [Toggle](#toggle) |
 | `done` | `<d>` | [Done](#done) |
 | `undone` | `<U>` | [Undone](#undone) |
 | `toggle hide done` | `<H>` | [ToggleHideDone](#toggle-hide-done) |
@@ -289,7 +292,7 @@ Actions can be triggered by screen events (mouse click, finger touch) or by keyb
 #### Add
 
 ```typescript
-function add(string): void
+function add(args: string): void
 ```
 
 #### Update
