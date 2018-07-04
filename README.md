@@ -39,6 +39,8 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
     * [GUI](#gui)
     * [Main functions](#main-functions)
       * [Add](#add)
+      * [Info](#info)
+      * [List](#list)
       * [Update](#update-1)
       * [Delete](#delete-1)
       * [Start](#start)
@@ -360,12 +362,28 @@ add("my awesome task +firstTask :3:18 +awesome")
 add("my +awesame awesome :3:18 +firstTask task")
 ```
 
+#### Info
+
+Display a task by id. Throw `task-not-found`.
+
+```typescript
+function info(id: number): void
+```
+
+#### List
+
+Display all tasks. If user option [hide done](#hide-done) is enabled, do not show up done tasks.
+
+```typescript
+function list(): void
+```
+
 #### Update
 
 Update a task by id. Throw `task-not-found`.
 
 ```typescript
-function update(id: int, args: string): void
+function update(id: number, args: string): void
 ```
 
 Same usage as [Add](#add), except for **tags**. You can remove an existing tag by prefixing it with a `-`.
@@ -381,7 +399,7 @@ update(42, "-oldtag +newtag")
 Remove a task by id. Throw `task-not-found`.
 
 ```typescript
-function delete(id: int): void
+function delete(id: number): void
 ```
 
 #### Start
@@ -389,7 +407,7 @@ function delete(id: int): void
 Start a task by id. Throw `task-not-found` and `task-already-started`.
 
 ```typescript
-function start(id: int): void
+function start(id: number): void
 ```
 
 Also set `active` property to now (when this action is triggered).
@@ -399,7 +417,7 @@ Also set `active` property to now (when this action is triggered).
 Stop a task by id. Throw `task-not-found` and `task-already-stopped`.
 
 ```typescript
-function stop(id: int): void
+function stop(id: number): void
 ```
 
 Also update the `worktime` (increase the amount by now - `active`), set `active` to `0`, and set `lastactive` to now.
@@ -409,7 +427,7 @@ Also update the `worktime` (increase the amount by now - `active`), set `active`
 If task active, trigger [stop](#stop) action, otherwise trigger [start](#start) action. Throw `task-not-found`.
 
 ```typescript
-function toggle(id: int): void
+function toggle(id: number): void
 ```
 
 #### Done
@@ -417,7 +435,7 @@ function toggle(id: int): void
 Mark a task as done. Throw `task-not-found` and `task-already-done`.
 
 ```typescript
-function done(id: int): void
+function done(id: number): void
 ```
 
 If the task is active, trigger [stop](#stop) action first. Then set `done` property to now, and set `id` to `id` . now. For example, if the id = 5, and now = 1530716924, then the new id will be 51530716924.
@@ -427,7 +445,7 @@ If the task is active, trigger [stop](#stop) action first. Then set `done` prope
 Unmark a task as done. Throw `task-not-found` and `task-not-done`.
 
 ```typescript
-function undone(id: int): void
+function undone(id: number): void
 ```
 Also set `done` to `0`, and [generate a new id](#generate-id) for this task.
 
@@ -463,7 +481,7 @@ Contain the path to the database file. In some special case, when the database c
 
 ### Gist sync
 
-Contain a boolean. If `true`, activate the [Gist](https://gist.github.com/) sync. In this case, the GitHub token is prompted each time the application starts, till the user enters a valid token or the user disable this option. Default: `false`.
+Contain a boolean. If `true`, activate the [Gist](https://gist.github.com/) sync. In this case, the GitHub token is prompted each time the application starts, till the user enters a valid token or the user disables this option. Default: `false`.
 
 ### Hide done
 
