@@ -39,8 +39,8 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
     * [GUI](#gui)
     * [Main functions](#main-functions)
       * [Add](#add)
-      * [Update](#update)
-      * [Delete](#delete)
+      * [Update](#update-1)
+      * [Delete](#delete-1)
       * [Start](#start)
       * [Stop](#stop)
       * [Toggle](#toggle)
@@ -54,7 +54,7 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
 
 ## Database
 
-Tasks are stored in a local database (file), one line = one task at JSON format.
+Tasks are stored in a locale database (file), where one line = one task at JSON format.
 No last empty line.
 
 ```typescript
@@ -65,7 +65,8 @@ No last empty line.
 
 ### Read
 
-Read raw data from database and return a list of [Task](#model). The database path is based on the [database](#database-1) user configuration.
+Read raw data from database and return a list of [Task](#model).
+The database path is based on the [database](#database-1) user configuration.
 
 ```typescript
 function read(): Task[]
@@ -73,7 +74,7 @@ function read(): Task[]
 
 ### Write
 
-Transform a list of [Task](#model) to raw data and write them to database. If the user configuration [gist sync](#gist-sync) is activated, synchronise this raw data with the user Gist.
+Transform a list of [Task](#model) to raw data and write them to database. If the user configuration [gist sync](#gist-sync) is enabled, synchronise this raw data with the user Gist.
 
 ```typescript
 function write(tasks: Task[]): void
@@ -97,15 +98,11 @@ interface Task {
 
 #### Id
 
-Should be an `integer` > 0.
-
 ```typescript
-type Id = number
+type Id = number // An integer > 0
 ```
 
 #### Desc
-
-Should be a `string`.
 
 ```typescript
 type Desc = string
@@ -113,32 +110,26 @@ type Desc = string
 
 #### Tag
 
-Should be a `string` matching `[0-9a-zA-Z\-_]*`.
-
 ```typescript
-type Tag = string
+type Tag = string // Matches [0-9a-zA-Z\-_]*
 ```
 
 #### Duration
 
-Should be an `integer`.
-
 ```typescript
-type Duration = number
+type Duration = number // An integer
 ```
 
 #### DateTime
 
-Should be a `timestamp`.
-
 ```typescript
-type Duration = number
+type Duration = number // A timestamp
 ```
 
 ### Main functions
 #### Create
 
-Receive a [Task](#model), [generate a unique Id](#generate-id) for this task, then insert it into database.
+Receive a task, [generates a unique Id](#generate-id) for this task, then insert into database.
 
 ```typescript
 function create(task: Task): Id
@@ -146,7 +137,7 @@ function create(task: Task): Id
 
 #### Read
 
-Retrieve a [Task](#model) by Id. Throw `task-not-found` if task not found.
+Retrieve a task by Id. Throw `task-not-found`.
 
 ```typescript
 function read(id: Id): Task
@@ -154,7 +145,7 @@ function read(id: Id): Task
 
 #### Read All
 
-Retrieve all [Tasks](#model) from database.
+Retrieve all tasks from database.
 
 ```typescript
 function readAll(): Task[]
@@ -162,7 +153,7 @@ function readAll(): Task[]
 
 #### Update
 
-Update a [Task](#model) with all params received. Throw `task-not-found` if [Task](#model) not found.
+Update a task with all params received. Throw `task-not-found`.
 
 ```typescript
 type Partial<T> = {
@@ -174,7 +165,7 @@ function update(id Id, task Partial<Task>): void
 
 #### Delete
 
-Delete a [Task](#model) by id. Throw `task-not-found` if [Task](#model) not found.
+Delete a task by id. Throw `task-not-found`.
 
 ```typescript
 function delete(id: Id): void
@@ -183,7 +174,7 @@ function delete(id: Id): void
 ### Helpers
 #### Generate Id
 
-Generate a unique [Id](#id) from a list of [Task](#model).
+Generate a unique [Id](#id) from a list of task.
 
 ```typescript
 function generateId(tasks: Task[]): Id
@@ -205,7 +196,7 @@ while (true) {
 
 #### Stringify list task
 
-Transform all properties of a [Task](#model) to string (in order to prepare the [Task](#model) to be displayed in an List context).
+Transform all properties of a task to string (in order to prepare the task to be displayed in an List context).
 
   - Id: if task is done, display `-`, otherwise display the id
   - Desc: display desc
@@ -223,7 +214,7 @@ function toStringList(task: Task): StringVal<Task>
 
 #### Stringify info task
 
-Should transform all properties of a [Task](#model) to string (in order to prepare the [Task](#model) to be displayed in an Info context).
+Transform all properties of a task to string (in order to prepare the task to be displayed in an Info context).
 
   - Id: display the id
   - Desc: display desc
@@ -266,7 +257,7 @@ The command name is `kronos`, and has a shortcut named `k`. In some specific cas
 
 When the GUI mode is started, the [list](#list) action is triggered as main function. So there is no action `list` in GUI mode. But there is an action `toggle hide done` to show and hide done tasks in this list. By default, the first time this `list` is showed up, done tasks are hidden. To change the default behaviour, check out the user configuration [Hide done](#hide-done).
 
-Actions can be triggered by screen events (mouse click, finger touch) or by keyboard events (shortcuts). The list and the info should show data in realtime, otherwise a `refresh` action need to be implemented, in order to refresh manually the interface.
+Actions can be triggered by screen events (mouse click, finger touch) or by keyboard events (shortcuts). The list and the info should show data in realtime, otherwise a `refresh` action is needed, in order to have up-to-date informations.
 
 | Action | Key mappings | Link |
 | --- | --- | --- |
@@ -293,7 +284,7 @@ Add a new task.
 function add(args: string): void
 ```
 
-The args should match this pattern: `<desc> <tags> <due>`.
+The args match this pattern: `<desc> <tags> <due>`.
 
 A **tag** must start by `+` and should not contain any space. For example:
 
@@ -371,7 +362,7 @@ add("my +awesame awesome :3:18 +firstTask task")
 
 #### Update
 
-Update a task by id. Throw `task-not-found` if [Task](#model) not found.
+Update a task by id. Throw `task-not-found`.
 
 ```typescript
 function update(id: int, args: string): void
@@ -387,7 +378,7 @@ update(42, "-oldtag +newtag")
 
 #### Delete
 
-Remove a task by id. Throw `task-not-found` if [Task](#model) not found.
+Remove a task by id. Throw `task-not-found`.
 
 ```typescript
 function delete(id: int): void
@@ -395,7 +386,7 @@ function delete(id: int): void
 
 #### Start
 
-Start a task by id. Throw `task-not-found` if [Task](#model) not found, and `task-already-started` if [Task](#model) already started.
+Start a task by id. Throw `task-not-found` and `task-already-started`.
 
 ```typescript
 function start(id: int): void
@@ -405,7 +396,7 @@ Also set `active` property to now (when this action is triggered).
 
 #### Stop
 
-Stop a task by id. Throw `task-not-found` if [Task](#model) not found, and `task-already-stopped` if [Task](#model) already stopped.
+Stop a task by id. Throw `task-not-found` and `task-already-stopped`.
 
 ```typescript
 function stop(id: int): void
@@ -415,7 +406,7 @@ Also update the `worktime` (increase the amount by now - `active`), set `active`
 
 #### Toggle
 
-If task active, trigger [stop](#stop) action, otherwise trigger [start](#start) action. Throw `task-not-found` if [Task](#model) not found.
+If task active, trigger [stop](#stop) action, otherwise trigger [start](#start) action. Throw `task-not-found`.
 
 ```typescript
 function toggle(id: int): void
@@ -423,7 +414,7 @@ function toggle(id: int): void
 
 #### Done
 
-Mark a task as done. Throw `task-not-found` if [Task](#model) not found, and `task-already-done` if [Task](#model) already done.
+Mark a task as done. Throw `task-not-found` and `task-already-done`.
 
 ```typescript
 function done(id: int): void
@@ -433,12 +424,12 @@ If the task is active, trigger [stop](#stop) action first. Then set `done` prope
 
 #### Undone
 
-Unmark a task as done. Throw `task-not-found` if [Task](#model) not found, and `task-not-done` if [Task](#model) not done.
+Unmark a task as done. Throw `task-not-found` and `task-not-done`.
 
 ```typescript
 function undone(id: int): void
 ```
-Set `done` to `0`, and [generate a new id](#generate-id) for this task.
+Also set `done` to `0`, and [generate a new id](#generate-id) for this task.
 
 #### Toggle hide done
 
@@ -468,12 +459,12 @@ The user is able to configure some options.
 
 ### Database
 
-Contains the path to the database file. In some special case, when the database can't be stored as a file, refer to the database key name. Default: `ROOT_APP_FOLDER/kronos.db`.
+Contain the path to the database file. In some special case, when the database can't be stored as a file, refer to the database key name. Default: `ROOT_APP_FOLDER/kronos.db`.
 
 ### Gist sync
 
-Contains a boolean. If `true`, activate the [Gist](https://gist.github.com/) sync. In this case, the GitHub token is prompted each time the application starts, till the user enters a valid token or the user disable this option. Default: `false`.
+Contain a boolean. If `true`, activate the [Gist](https://gist.github.com/) sync. In this case, the GitHub token is prompted each time the application starts, till the user enters a valid token or the user disable this option. Default: `false`.
 
 ### Hide done
 
-Contains a boolean. If `true`, when the [list](#list) action is triggered, does not display done tasks. Default: `true`.
+Contain a boolean. If `true`, when the [list](#list) action is triggered, does not display done tasks. Default: `true`.
