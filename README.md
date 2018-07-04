@@ -256,6 +256,8 @@ The command name is `kronos`, and has a shortcut named `k`. In some specific cas
 | `undone` | `U` | [Undone](#undone) |
 | `toggle hide done` | `<H>` | [ToggleHideDone](#toggle-hide-done) |
 | `worktime` | `w` | [Worktime](#worktime) |
+| `context` | `c` | [Context](#context) |
+| `context clear` | `<C>` | [ContextClear](#context-clear) |
 
 ### GUI
 
@@ -276,6 +278,8 @@ Actions can be triggered by screen events (mouse click, finger touch) or by keyb
 | `undone` | `<U>` | [Undone](#undone) |
 | `toggle hide done` | `<H>` | [ToggleHideDone](#toggle-hide-done) |
 | `worktime` | `<w>` | [Worktime](#worktime) |
+| `context` | `<c>` | [Context](#context) |
+| `context clear` | `<C>` | [ContextClear](#context-clear) |
 | `refresh` | `<r>` | Refresh all the GUI (only when there is no realtime showing) |
 | `quit` | `<q>`, `<Esc>` | Quit the GUI mode (only if [CLI](#cli) mode exists also) |
 
@@ -470,6 +474,34 @@ For example, to print the total worktime for tags **tag1** and **tag2**:
 
 ```typescript
 worktime("+tag1 +tag2")
+```
+
+#### Context
+
+Set a context by tags. It means that only tasks containing tags in context will be shown,
+and when a task is added, these tags will be applied by default.
+
+```typescript
+function context(args: string): void
+```
+
+For example, to set the context to `project-A`:
+
+```typescript
+context("+project-A")
+```
+
+If you list all tasks, you will see only tasks with `project-A` tag.
+If you add a new task, it will automatically get the tag `project-A`.
+
+To clear the context, just call `context` with empty args.
+
+#### Context clear
+
+Clear the current context. It's just an alias for:
+
+```typescript
+context("")
 ```
 
 ## Configuration
