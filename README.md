@@ -293,13 +293,13 @@ function add(args: string): void
 
 The args match this pattern: `<desc> <tags> <due>`.
 
-A **tag** must start by `+` and should not contain any space. For example:
+A `tag` must start by `+` and should not contain any space. For example:
 
 ```typescript
 add("+tag +tag-2 +tag_3")
 ```
 
-A **due** must start by `:` and should contain numbers only.  The full format of a valid due is `:DDMMYY:HHMM` but almost everything can be omitted. Here some example to understand better the concept:
+A `due` must start by `:` and should contain numbers only.  The full format of a valid due is `:DDMMYY:HHMM` but almost everything can be omitted. Here some example to understand better the concept:
 
   - *\<day\>   means the current day (day when the command is executed)*
   - *\<month\> means the current month*
@@ -390,9 +390,9 @@ Update a task by id. Throw `task-not-found`.
 function update(id: number, args: string): void
 ```
 
-Same usage as [Add](#add), except for **tags**. You can remove an existing tag by prefixing it with a `-`.
+Same usage as [Add](#add), except for `tags`. You can remove an existing tag by prefixing it with a `-`.
 
-For eg., to remove **oldtag** and add **newtag** to task **42**:
+For eg., to remove `oldtag` and add `newtag` to task `42`:
 
 ```typescript
 update(42, "-oldtag +newtag")
@@ -469,7 +469,7 @@ Show the total worktime by tags.
 function worktime(args: string): void
 ```
 
-For example, to print the total worktime for tags **tag1** and **tag2**:
+For example, to print the total worktime for tags `tag1` and `tag2`:
 
 ```typescript
 worktime("tag1 tag2")
