@@ -245,13 +245,13 @@ function toStringInfo(task: Task): StringVal<Task>
 
 ## User interface
 
-A client can be a CLI, a GUI, or even both.
+A client can have a CLI, a GUI, or both.
 
 ### CLI
 
-The command name is `kronos`, and can have a shortcut named `k`. In some specific case, the command can be `Kronos`, and its shortcut `K`. If started without any parameter, then start the GUI (if present). Otherwise, the first parameter is the action, and the other parameters are transmitted to the action. Each action has a shortcut:
+The command name is `kronos`, and has a shortcut named `k`. In some specific case, the command can be `Kronos`, and its shortcut `K`. If command entered without any parameter, then start the GUI (if exists). Otherwise, the first parameter is the action, and the other parameters are transmitted to the action. Each action has a shortcut:
 
-| Action | Shortcut | Function |
+| Action | Shortcut | Link to function |
 | --- | --- | --- |
 | `add` | `a` | [Add](#add) |
 | `info` | `i` | [Info](#info) |
@@ -262,10 +262,30 @@ The command name is `kronos`, and can have a shortcut named `k`. In some specifi
 | `toggle` | `t` | [Toggle](#toggle) |
 | `done` | `d` | [Done](#done) |
 | `undone` | `U` | [Undone](#undone) |
+| `toggle hide done` | `<H>` | [ToggleHideDone](#toggle-hide-done) |
 | `worktime` | `w` | [Worktime](#worktime) |
 
 ### GUI
-### Main functions
+
+Actions can be triggered by screen events (mouse click, finger touch) or by keyboard events (shortcuts). The list and the info should show data in realtime, otherwise a `refresh` action need to be implemented, in order to refresh manually the interface.
+
+| Action | Mappings | Link |
+| --- | :---: | --- |
+| `add` | `<a>` | [Add](#add) |
+| `info` | `<i>` | [Info](#info) |
+| `update` | `<u>` | [Update](#update) |
+| `delete` | `<D>`, `<Backspace>`, `<Del>` | [Delete](#delete) |
+| `start` | `<s>` | [Start](#start) |
+| `stop` | `<S>` | [Stop](#stop) |
+| `toggle` | `<Enter>`, `<t>` | [Toggle](#toggle) |
+| `done` | `<d>` | [Done](#done) |
+| `undone` | `<U>` | [Undone](#undone) |
+| `toggle hide done` | `<H>` | [ToggleHideDone](#toggle-hide-done) |
+| `worktime` | `<w>` | [Worktime](#worktime) |
+| `refresh` | `<r>` | Refresh all the GUI (only when there is no realtime showing) |
+| `quit` | `<q>`, `<Esc>` | Quit the GUI mode (only if [CLI](#cli) mode exists also) |
+
+### Actions
 #### Add
 
 ```typescript
@@ -312,6 +332,13 @@ function done(int): void
 
 ```typescript
 function undone(int): void
+```
+
+
+#### Toggle hide done
+
+```typescript
+function toggleHideDone(): void
 ```
 
 #### Worktime
