@@ -5,7 +5,7 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
 ## List of clients
 
   - [Kronos.vim](https://github.com/kronos-io/kronos.vim)
-  - Kronos.web
+  - [Kronos.web](https://github.com/kronos-io/kronos.web)
   - Kronos.mobile
   - Kronos.cli
   - Kronos.desktop
