@@ -68,7 +68,7 @@ No last empty line.
 ### Read
 
 Read raw data from database and return a list of [Task](#model).
-The database path is based on the [database](#database-1) user configuration.
+The database path is based on the user configuration [database](#database-1).
 
 ```typescript
 function read(): Task[]
@@ -82,7 +82,7 @@ Transform a list of [Task](#model) to raw data and write them to database. Tasks
 function write(tasks: Task[]): void
 ```
 
-If the user configuration [gist sync](#gist-sync) is enabled, synchronise this raw data with the user Gist.
+If the user configuration [gist sync](#gist-sync) is enabled, synchronise raw data with the user Gist.
 
 ## Task
 ### Model
@@ -115,7 +115,7 @@ type Desc = string
 #### Tag
 
 ```typescript
-type Tag = string // Matches [0-9a-zA-Z\-_]*
+type Tag = string // Match [0-9a-zA-Z\-_]*
 ```
 
 #### Duration
@@ -178,7 +178,7 @@ function delete(id: Id): void
 ### Helpers
 #### Generate Id
 
-Generate a unique [Id](#id) from a list of task.
+Generate a unique id from a list of task.
 
 ```typescript
 function generateId(tasks: Task[]): Id
@@ -200,13 +200,13 @@ while (true) {
 
 #### Stringify list task
 
-Transform all properties of a task to string (in order to prepare the task to be displayed in an List context).
+Transform all properties of a task to string (in order to prepare the task to be displayed in an [list](#list) context).
 
-  - Id: if task is done, display `-`, otherwise display the id
-  - Desc: display desc
-  - Tags: display all tags separated by a space
-  - Duration: display `<value> <unit>`. Display only one unit, the bigger one. For example, for a duration of 3h 45min 10s, display `in 4h`. For a duration of -3days 14h 11min 10s, display `3d ago`. Table of unit: y for years, mo for month, w for week, d for day, h for hour, min for minute, s for second.
-  - DateTime: display a duration between now (the moment when the list is displayed) and the datetime (see Duration just above). If duration is positive, display `in <value> <unit>`, otherwise `<value> <unit> ago`.
+  - **Id**: if task is done, display `-`, otherwise display the id
+  - **Desc**: display desc
+  - **Tags**: display all tags separated by a space
+  - **Duration**: display `<value> <unit>`. Display only one unit, the bigger one. For example, for a duration of 3h 45min 10s, display `4h`. For a duration of -3days 14h 11min 10s, display `3d`. Table of unit: y for years, mo for month, w for week, d for day, h for hour, min for minute, s for second.
+  - **DateTime**: display a duration between now (the moment when the list is displayed) and the datetime (see Duration just above). If duration is positive, display `in <value> <unit>`, otherwise `<value> <unit> ago`.
   
 ```typescript
 type StringVal<T> = {
@@ -218,13 +218,13 @@ function toStringList(task: Task): StringVal<Task>
 
 #### Stringify info task
 
-Transform all properties of a task to string (in order to prepare the task to be displayed in an Info context).
+Transform all properties of a task to string (in order to prepare the task to be displayed in an [info](#info) context).
 
-  - Id: display the id
-  - Desc: display desc
-  - Tags: display all tags separated by a space
-  - Duration: display `<value> <unit>`. Display the full duration. For example, for a duration of 3h 45min 10s, display `3h 45min 10s`. For a duration of -3days 14h 11min 10s, display `3d 14h 11min 10s`. Table of unit: y for years, mo for month, w for week, d for day, h for hour, min for minute, s for second.
-  - DateTime: display the full date at locale format (%c).
+  - **Id**: display the id
+  - **Desc**: display desc
+  - **Tags**: display all tags separated by a space
+  - **Duration**: display `<value> <unit>`. Display the full duration. For example, for a duration of 3h 45min 10s, display `3h 45min 10s`. For a duration of -3days 14h 11min 10s, display `3d 14h 11min 10s`. Table of unit: y for years, mo for month, w for week, d for day, h for hour, min for minute, s for second.
+  - **DateTime**: display the full date at locale format (%c).
 
 ```typescript
 type StringVal<T> = {
@@ -352,8 +352,7 @@ will result in:
 {
   "desc": "my awesome task",
   "tags": ["firstTask", "awesome"],
-  "due": "3rd of March 2018, 18h00",
-  ...
+  "due": "3rd of March 2018, 18h00"
 }
 ```
 
@@ -412,7 +411,7 @@ Start a task by id. Throw `task-not-found` and `task-already-started`.
 function start(id: number): void
 ```
 
-Also set `active` property to now (when this action is triggered).
+Also set `active` property to `now` (when this action is triggered).
 
 #### Stop
 
@@ -422,7 +421,7 @@ Stop a task by id. Throw `task-not-found` and `task-already-stopped`.
 function stop(id: number): void
 ```
 
-Also update the `worktime` (increase the amount by now - `active`), set `active` to `0`, and set `lastactive` to now.
+Also update the `worktime` (increase the amount by `now - active`), set `active` to `0`, and set `lastactive` to `now`.
 
 #### Toggle
 
@@ -440,7 +439,7 @@ Mark a task as done. Throw `task-not-found` and `task-already-done`.
 function done(id: number): void
 ```
 
-If the task is active, trigger [stop](#stop) action first. Then set `done` property to now, and set `id` to `id` . now. For example, if the id = 5, and now = 1530716924, then the new id will be 51530716924.
+If the task is active, trigger [stop](#stop) action first. Then set `done` property to `now`, and set `id` to `id . now`. For example, if the id = 5, and now = 1530716924, then the new id will be 51530716924.
 
 #### Undone
 
@@ -483,7 +482,7 @@ Contain the path to the database file. In some special case, when the database c
 
 ### Gist sync
 
-Contain a boolean. If `true`, activate the [Gist](https://gist.github.com/) sync. In this case, the GitHub token is prompted each time the application starts, till the user enters a valid token or the user disables this option. Default: `false`.
+Contain a boolean. If `true`, activate the [Gist](https://gist.github.com/) sync. In this case, the GitHub token is prompted each time the application starts, till the user enters a valid token or the user disables this option. Default: `true`.
 
 ### Hide done
 
