@@ -76,11 +76,13 @@ function read(): Task[]
 
 ### Write
 
-Transform a list of [Task](#model) to raw data and write them to database. If the user configuration [gist sync](#gist-sync) is enabled, synchronise this raw data with the user Gist.
+Transform a list of [Task](#model) to raw data and write them to database. Tasks should be ordered by done (ascending), then by arrival (ascending) before being written to database.
 
 ```typescript
 function write(tasks: Task[]): void
 ```
+
+If the user configuration [gist sync](#gist-sync) is enabled, synchronise this raw data with the user Gist.
 
 ## Task
 ### Model
