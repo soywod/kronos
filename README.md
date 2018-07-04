@@ -287,50 +287,141 @@ Actions can be triggered by screen events (mouse click, finger touch) or by keyb
 ### Actions
 #### Add
 
+Add a new task.
+
 ```typescript
 function add(args: string): void
 ```
 
-#### Update
+The args should match this pattern: `<desc> <tags> <due>`.
+
+A **tag** must start by `+` and should not contain any space. For example:
 
 ```typescript
-function update(int, string): void
+add("+tag +tag-2 +tag_3")
+```
+
+A **due** must start by `:` and should contain numbers only.  The full format of a valid due is `:DDMMYY:HHMM` but almost everything can be omitted. Here some example to understand better the concept:
+
+  - *\<day\>   means the current day (day when the command is executed)*
+  - *\<month\> means the current month*
+  - *\<year\>  means the current year*
+
+Full due:
+
+```typescript
+add(":100518:1200") // 10th of May 2018, 12h00
+```
+
+If minutes omitted, set to `00`:
+
+```typescript
+add(":100518:12")   // 10th of May 2018, 12h00
+```
+
+If hours omitted, set to `00`:
+
+```typescript
+add(":100518")      // 10th of May 2018, 00h00
+```
+
+If years omitted, try first the current year. If the final date is exceeded, try with the next year:
+
+```typescript
+add(":1005")        // 10th of May <year> or <year>+1, 00h00
+```
+
+If months omitted, try first the current month. If the final date is exceeded, try with the next month:
+
+```typescript
+add(":10")          // 10th of <month> or <month>+1 <year>, 00h00
+```
+
+If days omitted, try first the current day. If the final date is exceeded try with the next day:
+
+```typescript
+add(":")            // <day> or <day>+1 of <month> <year>, 00h00
+add("::8")          // <day> or <day>+1 of <month> <year>, 08h00
+```
+
+All together:
+
+```typescript
+// Command executed on 1st of March, 2018 at 21h21
+add("my awesome task +firstTask :3:18 +awesome")
+```
+
+will result in:
+
+```json
+{
+  "desc": "my awesome task",
+  "tags": ["firstTask", "awesome"],
+  "due": "3rd of March 2018, 18h00",
+  ...
+}
+```
+
+The order is not important, tags can be everywhere, and due as well. The desc is the remaining of text present after removing tags and due. Both examples end up with the same result:
+
+```typescript
+add("my awesome task +firstTask :3:18 +awesome")
+add("my +awesame awesome :3:18 +firstTask task")
+```
+
+#### Update
+
+Update a task by id.
+
+```typescript
+function update(id: int, args: string): void
+```
+
+Same usage as [Add](#add), except for **tags**. You can remove an existing tag by prefixing it with a `-`.
+
+For eg., to remove **oldtag** and add **newtag** to task **42**:
+
+```typescript
+update(42, "-oldtag +newtag")
 ```
 
 #### Delete
 
+Remove a task by id.
+
 ```typescript
-function delete(int): void
+function delete(id: int): void
 ```
 
 #### Start
 
+Start a task by id.
 ```typescript
-function start(int): void
+function start(id: int): void
 ```
 
 #### Stop
 
 ```typescript
-function stop(int): void
+function stop(id: int): void
 ```
 
 #### Toggle
 
 ```typescript
-function toggle(int): void
+function toggle(id: int): void
 ```
 
 #### Done
 
 ```typescript
-function done(int): void
+function done(id: int): void
 ```
 
 #### Undone
 
 ```typescript
-function undone(int): void
+function undone(id: int): void
 ```
 
 
