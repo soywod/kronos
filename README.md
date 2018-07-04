@@ -162,7 +162,7 @@ function readAll(): Task[]
 
 #### Update
 
-Update a [Task](#model) with all params received. Throw `task-not-found` if [Task](#model) not found. 
+Update a [Task](#model) with all params received. Throw `task-not-found` if [Task](#model) not found.
 
 ```typescript
 type Partial<T> = {
@@ -371,7 +371,7 @@ add("my +awesame awesome :3:18 +firstTask task")
 
 #### Update
 
-Update a task by id.
+Update a task by id. Throw `task-not-found` if [Task](#model) not found.
 
 ```typescript
 function update(id: int, args: string): void
@@ -387,7 +387,7 @@ update(42, "-oldtag +newtag")
 
 #### Delete
 
-Remove a task by id.
+Remove a task by id. Throw `task-not-found` if [Task](#model) not found.
 
 ```typescript
 function delete(id: int): void
@@ -395,18 +395,27 @@ function delete(id: int): void
 
 #### Start
 
-Start a task by id.
+Start a task by id. Throw `task-not-found` if [Task](#model) not found, and `task-already-started` if [Task](#model) already started.
+
 ```typescript
 function start(id: int): void
 ```
 
+Also set `active` property to now (when this action is triggered).
+
 #### Stop
+
+Stop a task by id. Throw `task-not-found` if [Task](#model) not found, and `task-already-stopped` if [Task](#model) already stopped.
 
 ```typescript
 function stop(id: int): void
 ```
 
+Also update the `worktime` (increase the amount by now - `active`), set `active` to `0`, and set `lastactive` to now.
+
 #### Toggle
+
+If task active, trigger [stop](#stop) action, otherwise trigger [start](#start) action. Throw `task-not-found` if [Task](#model) not found.
 
 ```typescript
 function toggle(id: int): void
@@ -414,18 +423,26 @@ function toggle(id: int): void
 
 #### Done
 
+Mark a task as done. Throw `task-not-found` if [Task](#model) not found, and `task-already-done` if [Task](#model) already done.
+
 ```typescript
 function done(id: int): void
 ```
 
+If the task is active, trigger [stop](#stop) action first. Then set `done` property to now, and set `id` to `id` . now. For example, if the id = 5, and now = 1530716924, then the new id will be 51530716924.
+
 #### Undone
+
+Unmark a task as done. Throw `task-not-found` if [Task](#model) not found, and `task-not-done` if [Task](#model) not done.
 
 ```typescript
 function undone(id: int): void
 ```
-
+Set `done` to `0`, and [generate a new id](#generate-id) for this task.
 
 #### Toggle hide done
+
+Toggle the user configuration [hide done](#hide-done).
 
 ```typescript
 function toggleHideDone(): void
@@ -433,8 +450,16 @@ function toggleHideDone(): void
 
 #### Worktime
 
+Show the total worktime for one or more tag(s).
+
 ```typescript
-function worktime(int): void
+function worktime(args: string): void
+```
+
+For example, to print the total worktime for tags **tag1** and **tag2**:
+
+```typescript
+worktime("+tag1 +tag2")
 ```
 
 ## Configuration
