@@ -24,7 +24,7 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
       * [Tag](#tag)
       * [Duration](#duration)
       * [DateTime](#datetime)
-    * [Repository](#repository)
+    * [Main funcitons](#main-functions)
       * [Create](#create)
       * [Read](#read)
       * [Read All](#read-all)
@@ -37,16 +37,17 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
   * [User interface](#user-interface)
     * [CLI](#cli)
     * [GUI](#gui)
-    * [Add](#add)
-    * [Update](#update)
-    * [Delete](#delete)
-    * [Start](#start)
-    * [Stop](#stop)
-    * [Toggle](#toggle)
-    * [Done](#done)
-    * [Undone](#undone)
-    * [Worktime](#worktime)
-    
+    * [Main functions](#main-functions)
+      * [Add](#add)
+      * [Update](#update)
+      * [Delete](#delete)
+      * [Start](#start)
+      * [Stop](#stop)
+      * [Toggle](#toggle)
+      * [Done](#done)
+      * [Undone](#undone)
+      * [Worktime](#worktime)
+
 ## Database
 
 Tasks are stored in a local database (file), one line = one task at JSON format.
@@ -138,7 +139,7 @@ Should be a `timestamp`.
 type Duration = number
 ```
 
-### Repository
+### Main functions
 #### Create
 
 Receive a [Task](#model), [generate a unique Id](#generate-id) for this task, then insert it into database.
@@ -243,57 +244,77 @@ function toStringInfo(task: Task): StringVal<Task>
 ```
 
 ## User interface
+
+A client can be a CLI, a GUI, or even both.
+
 ### CLI
+
+The command name is `kronos`, and can have a shortcut named `k`. In some specific case, the command can be `Kronos`, and its shortcut `K`. If started without any parameter, then start the GUI (if present). Otherwise, the first parameter is the action, and the other parameters are transmitted to the action. Each action has a shortcut:
+
+| Action | Shortcut | Function |
+| --- | --- | --- |
+| `add` | `a` | [Add](#add) |
+| `info` | `i` | [Info](#info) |
+| `update` | `u` | [Update](#update) |
+| `delete` | `D` | [Delete](#delete) |
+| `start` | `s` | [Start](#start) |
+| `stop` | `S` | [Stop](#stop) |
+| `toggle` | `t` | [Toggle](#toggle) |
+| `done` | `d` | [Done](#done) |
+| `undone` | `U` | [Undone](#undone) |
+| `worktime` | `w` | [Worktime](#worktime) |
+
 ### GUI
-### Add
+### Main functions
+#### Add
 
 ```typescript
 function add(string): void
 ```
 
-### Update
+#### Update
 
 ```typescript
 function update(int, string): void
 ```
 
-### Delete
+#### Delete
 
 ```typescript
 function delete(int): void
 ```
 
-### Start
+#### Start
 
 ```typescript
 function start(int): void
 ```
 
-### Stop
+#### Stop
 
 ```typescript
 function stop(int): void
 ```
 
-### Toggle
+#### Toggle
 
 ```typescript
 function toggle(int): void
 ```
 
-### Done
+#### Done
 
 ```typescript
 function done(int): void
 ```
 
-### Undone
+#### Undone
 
 ```typescript
 function undone(int): void
 ```
 
-### Worktime
+#### Worktime
 
 ```typescript
 function worktime(int): void
