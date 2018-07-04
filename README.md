@@ -50,7 +50,6 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
       * [Toggle hide done](#toggle-hide-done)
       * [Worktime](#worktime)
       * [Context](#context)
-      * [Context clear](#context-clear)
   * [Configuration](#configuration)
     * [Database](#database-1)
     * [Gist sync](#gist-sync)
@@ -250,16 +249,15 @@ The command name is `kronos`, and has a shortcut named `k`. In some specific cas
 | `info` | `i` | [Info](#info) |
 | `list` | `l` | [List](#list) |
 | `update` | `u` | [Update](#update) |
-| `delete` | `D` | [Delete](#delete) |
+| `delete` | `del` | [Delete](#delete) |
 | `start` | `s` | [Start](#start) |
 | `stop` | `S` | [Stop](#stop) |
 | `toggle` | `t` | [Toggle](#toggle) |
-| `done` | `d` | [Done](#done) |
+| `done` | `D` | [Done](#done) |
 | `undone` | `U` | [Undone](#undone) |
-| `toggle hide done` | `<H>` | [ToggleHideDone](#toggle-hide-done) |
+| `toggle hide done` | `H` | [ToggleHideDone](#toggle-hide-done) |
 | `worktime` | `w` | [Worktime](#worktime) |
-| `context` | `c` | [Context](#context) |
-| `context clear` | `<C>` | [ContextClear](#context-clear) |
+| `context` | `C` | [Context](#context) |
 
 ### GUI
 
@@ -272,16 +270,15 @@ Actions can be triggered by screen events (mouse click, finger touch) or by keyb
 | `add` | `<a>` | [Add](#add) |
 | `info` | `<i>` | [Info](#info) |
 | `update` | `<u>` | [Update](#update) |
-| `delete` | `<D>`, `<Backspace>`, `<Del>` | [Delete](#delete) |
+| `delete` | `<Backspace>`, `<Del>` | [Delete](#delete) |
 | `start` | `<s>` | [Start](#start) |
 | `stop` | `<S>` | [Stop](#stop) |
 | `toggle` | `<t>`, `<Enter>` | [Toggle](#toggle) |
-| `done` | `<d>` | [Done](#done) |
+| `done` | `<D>` | [Done](#done) |
 | `undone` | `<U>` | [Undone](#undone) |
 | `toggle hide done` | `<H>` | [ToggleHideDone](#toggle-hide-done) |
 | `worktime` | `<w>` | [Worktime](#worktime) |
-| `context` | `<c>` | [Context](#context) |
-| `context clear` | `<C>` | [ContextClear](#context-clear) |
+| `context` | `<C>` | [Context](#context) |
 | `refresh` | `<r>` | Refresh all the GUI (only when there is no realtime showing) |
 | `quit` | `<q>`, `<Esc>` | Quit the GUI mode (only if [CLI](#cli) mode exists also) |
 
@@ -466,7 +463,7 @@ function toggleHideDone(): void
 
 #### Worktime
 
-Show the total worktime for one or more tag(s).
+Show the total worktime by tags.
 
 ```typescript
 function worktime(args: string): void
@@ -475,7 +472,7 @@ function worktime(args: string): void
 For example, to print the total worktime for tags **tag1** and **tag2**:
 
 ```typescript
-worktime("+tag1 +tag2")
+worktime("tag1 tag2")
 ```
 
 #### Context
@@ -490,21 +487,13 @@ function context(args: string): void
 For example, to set the context to `project-A`:
 
 ```typescript
-context("+project-A")
+context("project-A")
 ```
 
 If you list all tasks, you will see only tasks with `project-A` tag.
 If you add a new task, it will automatically get the tag `project-A`.
 
 To clear the context, just call `context` with empty args.
-
-#### Context clear
-
-Clear the current context. It's just an alias for:
-
-```typescript
-context("")
-```
 
 ## Configuration
 
