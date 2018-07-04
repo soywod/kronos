@@ -16,7 +16,6 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
   * [Database](#database)
     * [Read](#read)
     * [Write](#write)
-    * [Sync](#sync)
   * [Task](#task)
     * [Model](#model)
       * [Id](#id)
@@ -24,7 +23,7 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
       * [Tag](#tag)
       * [Duration](#duration)
       * [DateTime](#datetime)
-    * [Main funcitons](#main-functions)
+    * [CRUD](#crud)
       * [Create](#create)
       * [Read](#read)
       * [Read All](#read-all)
@@ -37,7 +36,7 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
   * [User interface](#user-interface)
     * [CLI](#cli)
     * [GUI](#gui)
-    * [Main functions](#main-functions)
+    * [Actions](#actions)
       * [Add](#add)
       * [Info](#info)
       * [List](#list)
@@ -48,6 +47,7 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
       * [Toggle](#toggle)
       * [Done](#done)
       * [Undone](#undone)
+      * [Toggle hide done](#toggle-hide-done)
       * [Worktime](#worktime)
   * [Configuration](#configuration)
     * [Database](#database-1)
@@ -130,7 +130,7 @@ type Duration = number // An integer
 type Duration = number // A timestamp
 ```
 
-### Main functions
+### CRUD
 #### Create
 
 Receive a task, [generates a unique Id](#generate-id) for this task, then insert into database.
