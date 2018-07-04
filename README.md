@@ -49,6 +49,8 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
       * [Undone](#undone)
       * [Toggle hide done](#toggle-hide-done)
       * [Worktime](#worktime)
+      * [Context](#context)
+      * [Context clear](#context-clear)
   * [Configuration](#configuration)
     * [Database](#database-1)
     * [Gist sync](#gist-sync)
