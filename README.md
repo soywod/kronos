@@ -128,7 +128,7 @@ type Duration = number // An integer
 #### DateTime
 
 ```typescript
-type Duration = number // A timestamp
+type DateTime = number // A timestamp
 ```
 
 ### CRUD
