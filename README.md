@@ -270,17 +270,17 @@ Mappings follow vim mappings:
 | Action | Key mappings | Link |
 | --- | --- | --- |
 | `add` | `<a>` | [Add](#add) |
-| `info` | `<K>` | [Info](#info) |
-| `update` | `<cc>` | [Update](#update) |
-| `delete` | `<dd>`, `<Backspace>`, `<Del>` | [Delete](#delete) |
+| `info` | `<i>` | [Info](#info) |
+| `update` | `<u>` | [Update](#update) |
+| `delete` | `<Backspace>`, `<Del>` | [Delete](#delete) |
 | `start` | `<+>` | [Start](#start) |
 | `stop` | `<->` | [Stop](#stop) |
-| `toggle start/stop` | `<cs>` | [Toggle](#toggle) |
-| `done` | `<do>` | [Done](#done) |
-| `undone` | `<u>` | [Undone](#undone) |
-| `toggle hide done` | `<ch>` | [ToggleHideDone](#toggle-hide-done) |
-| `worktime` | `<W>` | [Worktime](#worktime) |
-| `context` | `<co>` | [Context](#context) |
+| `toggle start/stop` | `<Enter>` | [Toggle](#toggle) |
+| `done` | `<d>` | [Done](#done) |
+| `undone` | `<U>` | [Undone](#undone) |
+| `toggle hide done` | `<H>` | [ToggleHideDone](#toggle-hide-done) |
+| `worktime` | `<w>` | [Worktime](#worktime) |
+| `context` | `<c>` | [Context](#context) |
 | `refresh` | `<r>` | Refresh all the GUI (only when there is no realtime showing) |
 | `quit` | `<q>`, `<Esc>` | Quit the GUI mode (only if [CLI](#cli) mode exists also) |
 
