@@ -1,6 +1,8 @@
 # Kronos protocol
 
-Kronos is a synchronized cross-platform task and time manager. In fact, it's a group of clients which follow this protocol. Feel free to contribute, share some idea, or even code a Kronos client.
+Kronos is a synchronized cross-platform task and time manager. In fact, it's a
+group of clients which follow this protocol. Feel free to contribute, share
+some idea, or even code a Kronos client.
 
 ## List of clients
 
@@ -16,6 +18,10 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
   * [Database](#database)
     * [Read](#read)
     * [Write](#write)
+  * [Config](#config)
+    * [Model](#model)
+      * [Hide done](#hide-done)
+      * [Enable sync](#enable-sync)
   * [Task](#task)
     * [Model](#model)
       * [Id](#id)
@@ -51,33 +57,70 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
       * [Context](#context)
     * [CLI](#cli)
     * [GUI](#gui)
-  * [Configuration](#configuration)
-    * [Enable sync](#enable-sync)
-    * [Hide done](#hide-done)
+  * [Sync](#sync)
+    * [Initialisation](#initialisation)
+    * [User id](#user-id)
+    * [Device id](#device-id)
+    * [Version](#version)
 
 ## Database
 
 Each client has its own locale database. It can be a file, a local storage, a
 database or whatever, but it should be packaged with the client, so it's
-possible to use the tool offline.
+possible to use the client offline. It's used to store [tasks](#task) and [user
+configuration](#config).
 
 ### Read
 
-Reads raw data from database and returns a list of [Task](#model). Throws `read
-database failed`.
+Reads data from database. Throws `read database failed`.
 
 ```typescript
-function read(): Task[]
+type Data = Task | Config
+
+function read<T extends Data>(): T[]
 ```
 
 ### Write
 
-Writes a list of [Task](#model) to the database. Throws `write database
-failed`.
+Writes data to the database. Throws `write database failed`.
 
 ```typescript
-function write(tasks: Task[]): void
+type Data = Task | Config
+
+function write<T extends Data>(data: T[]): void
 ```
+
+## Config
+
+The user configuration.
+
+### Model
+
+```typescript
+interface ConfigMap {
+  hide_done: boolean      // Default: true
+
+  enable_sync: boolean    // Default: false
+  sync_user_id: string    // Default: ''
+  sync_device_id: string  // Default: ''
+  sync_version: number    // Default: 0
+}
+
+type Config = {
+  [P in keyof ConfigMap]?: ConfigMap[P]
+}
+```
+
+#### Hide done
+
+If `true`, when the [list](#list) action is triggered, does not display done
+tasks.
+
+#### Enable sync
+
+If `true`, then tasks will be synchronized with a [Kronos realtime
+server](https://github.com/kronos-io/kronos.server) instance. See [sync](#sync)
+section for more informations about `user_id`, `device_id` and `version`.
 
 ## Task
 ### Model
@@ -348,7 +391,8 @@ add("my +awesome awesome :3:18 +firstTask task")
 
 #### Info
 
-Displays a task by id. Throws `task not found` and `task info failed`.
+Displays a task by id. The function [`stringify_props`](#info-context) is used
+to format the task to show. Throws `task not found` and `task info failed`.
 
 ```typescript
 function info(id: Id): void
@@ -356,8 +400,9 @@ function info(id: Id): void
 
 #### List
 
-Displays all tasks. If user option [hide done](#hide-done) is enabled, does not
-show up done tasks. Throws `task list failed`.
+Displays all tasks. The function [`stringify_props`](#list-context) is used to
+format all tasks to show. If user option [hide done](#hide-done) is enabled,
+does not show up done tasks. Throws `task list failed`.
 
 ```typescript
 function list(): void
@@ -482,8 +527,8 @@ For example, to set the context to `project-A`:
 context("project-A")
 ```
 
-If you list all tasks, you will see only tasks with `project-A` tag.  If you
-add a new task, it will automatically get the tag `project-A`.
+If you list all tasks, you will see only tasks with `project-A` tag. If you add
+a new task, it will automatically get the tag `project-A`.
 
 To clear the context, just call `context` with empty args.
 
@@ -520,7 +565,7 @@ first time this `list` is showed up, done tasks are hidden. To change the
 default behaviour, check out the user configuration [Hide done](#hide-done).
 
 Actions are triggered by screen events (mouse click, finger touch) or by
-keyboard events (shortcuts). The list and the info shows data in realtime. If
+keyboard events (shortcuts). The list and the info show data in realtime. If
 it's not possible, a `refresh` action is needed, in order to have up-to-date
 informations.
 
@@ -541,16 +586,42 @@ informations.
 | `refresh` | `<R>` | Refreshes all the GUI (only when there is no realtime showing) |
 | `quit` | `<q>`, `<Esc>` | Quits the GUI mode (only if [CLI](#cli) mode exists also) |
 
-## Configuration
+## Sync
 
-The user is able to configure some options.
+Tasks can be synchronized with a [Kronos realtime
+server](https://github.com/kronos-io/kronos.server) instance. This feature can
+be activated or deactivated from [user configuration](#enable-sync).
 
-### Enable sync
+### Initialisation
 
-Contains a boolean. If `true`, then tasks will be synchronized with a [Kronos
-realtime server](https://github.com/kronos-io/kronos.server) instance.
+When the client starts, contact the server and send a
+[login](https://github.com/kronos-io/kronos.server#login) request. `user_id`
+and `device_id` can be omitted if it's the first time a client connects to the
+server. You will receive a `user_id`, a `device_id` and a `version`.
 
-### Hide done
+  - If the locale `version` is older than the server `version`, send a
+    [read-all](https://github.com/kronos-io/kronos.server#read-all) request.
+    You will receive an up-to-date database that you will have to save into the
+    locale database.
+  - If the locale `version` is more recent than the server `version`, send a
+    [write-all](https://github.com/kronos-io/kronos.server#read-all) request.
 
-Contains a boolean. If `true`, when the [list](#list) action is triggered, does
-not display done tasks. Default: `true`.
+Once done, your client is connected to the server, and will receive a
+notification every time the database changes. See [server
+notifications](https://github.com/kronos-io/kronos.server#notifications) to
+learn more about how to handle them.
+
+### User id
+
+The `user_id` is the user identifier. It should be communicated to every new
+Krono client that needs to be synchronized.
+
+### Device id
+
+The `device_id` is the user's device identifier.
+
+### Version
+
+The `version` is the current version of the database. Each time the locale
+database is modified, set this version with the current date. This way, all
+clients are synchronized with the highest database version.
