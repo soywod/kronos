@@ -188,6 +188,10 @@ type PartialWithDesc<T> = Partial<T> & {
 function create(task: PartialWithDesc<Task>): Id
 ```
 
+If [sync](#sync) is enabled, send a
+[create](https://github.com/kronos-io/kronos.server#create) request to the
+server, in order to notify all other user's clients.
+
 #### Read
 
 Retrieves a task by Id. Throws `task not found` and `read task failed`.
@@ -217,6 +221,10 @@ type Partial<T> = {
 function update(id: Id, task: Partial<Task>): void
 ```
 
+If [sync](#sync) is enabled, send a
+[update](https://github.com/kronos-io/kronos.server#update) request to the
+server, in order to notify all other user's clients.
+
 #### Delete
 
 Deletes a task by id. Throws `task not found` and `delete task failed`.
@@ -224,6 +232,10 @@ Deletes a task by id. Throws `task not found` and `delete task failed`.
 ```typescript
 function delete(id: Id): void
 ```
+
+If [sync](#sync) is enabled, send a
+[delete](https://github.com/kronos-io/kronos.server#delete) request to the
+server, in order to notify all other user's clients.
 
 ### Helpers
 #### Generate Id
