@@ -22,6 +22,10 @@ some idea, or even code a Kronos client.
     * [Model](#model)
       * [Hide done](#hide-done)
       * [Enable sync](#enable-sync)
+        * [Host](#host)
+        * [User id](#user-id)
+        * [Device id](#device-id)
+        * [Version](#version)
   * [Task](#task)
     * [Model](#model-1)
       * [Id](#id)
@@ -59,10 +63,7 @@ some idea, or even code a Kronos client.
     * [GUI](#gui)
   * [Sync](#sync)
     * [Initialisation](#initialisation)
-    * [Host](#host)
-    * [User id](#user-id)
-    * [Device id](#device-id)
-    * [Version](#version)
+    * [Notifications](#notifications)
 
 ## Database
 
@@ -121,9 +122,26 @@ tasks.
 #### Enable sync
 
 If `true`, then tasks will be synchronized with a [Kronos realtime
-server](https://github.com/kronos-io/kronos.server) instance. See [sync](#sync)
-section for more informations about `host`, `user_id`, `device_id` and
-`version`.
+server](https://github.com/kronos-io/kronos.server) instance.
+
+##### Host
+
+The `host` is the server hostname.
+
+##### User id
+
+The `user_id` is the user identifier. It should be communicated to every new
+Krono client that needs to be synchronized.
+
+##### Device id
+
+The `device_id` is the user's device identifier.
+
+##### Version
+
+The `version` is the current version of the database. Each time the locale
+database is modified, set this version with the current date. This way, all
+clients are synchronized with the highest database version.
 
 ## Task
 ### Model
@@ -621,26 +639,9 @@ server. You will receive a `user_id`, a `device_id` and a `version`.
   - If the locale `version` is more recent than the server `version`, send a
     [write-all](https://github.com/kronos-io/kronos.server#read-all) request.
 
-Once done, your client is connected to the server, and will receive a
+### Notifications
+
+Once initialised, your client is connected to the server, and will receive a
 notification every time the database changes. See [server
 notifications](https://github.com/kronos-io/kronos.server#notifications) to
 learn more about how to handle them.
-
-### Host
-
-The `host` is the Kronos server hostname.
-
-### User id
-
-The `user_id` is the user identifier. It should be communicated to every new
-Krono client that needs to be synchronized.
-
-### Device id
-
-The `device_id` is the user's device identifier.
-
-### Version
-
-The `version` is the current version of the database. Each time the locale
-database is modified, set this version with the current date. This way, all
-clients are synchronized with the highest database version.
