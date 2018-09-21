@@ -31,11 +31,10 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
       * [Delete](#delete)
     * [Helpers](#helpers)
       * [Generate Id](#generate-id)
-      * [Stringify list task](#stringify-list-task)
-      * [Stringify info task](#stringify-info-task)
+      * [Stringify task props](#stringify-task-props)
+        * [List context](#list-context)
+        * [Info context](#info-context)
   * [User interface](#user-interface)
-    * [CLI](#cli)
-    * [GUI](#gui)
     * [Actions](#actions)
       * [Add](#add)
       * [Info](#info)
@@ -50,26 +49,22 @@ Kronos is a synchronized cross-platform task and time manager. In fact, it's a g
       * [Toggle hide done](#toggle-hide-done)
       * [Worktime](#worktime)
       * [Context](#context)
+    * [CLI](#cli)
+    * [GUI](#gui)
   * [Configuration](#configuration)
-    * [Database](#database-1)
-    * [Gist sync](#gist-sync)
+    * [Enable sync](#enable-sync)
     * [Hide done](#hide-done)
 
 ## Database
 
-Tasks are stored in a locale database (file), where one line = one task at JSON format.
-No last empty line.
-
-```typescript
-// Example for a 2 tasks database
-{"desc": "task1", "id": 4, ...}
-{"desc": "task2", "id": 12, ...}
-```
+Each client has its own locale database. It can be a file, a local storage, a
+database or whatever, but it should be packaged with the client, so it's
+possible to use the tool offline.
 
 ### Read
 
-Read raw data from database and return a list of [Task](#model).
-The database path is based on the user configuration [database](#database-1).
+Reads raw data from database and returns a list of [Task](#model). Throws `read
+database failed`.
 
 ```typescript
 function read(): Task[]
@@ -77,13 +72,12 @@ function read(): Task[]
 
 ### Write
 
-Transform a list of [Task](#model) to raw data and write them to database. Tasks should be ordered by done (ascending), then by arrival (ascending) before being written to database.
+Writes a list of [Task](#model) to the database. Throws `write database
+failed`.
 
 ```typescript
 function write(tasks: Task[]): void
 ```
-
-If the user configuration [gist sync](#gist-sync) is enabled, synchronise raw data with the user Gist.
 
 ## Task
 ### Model
@@ -94,7 +88,7 @@ interface Task {
   desc: Desc
   tags: Tag[]
   active: DateTime
-  lastactive: DateTime
+  last_active: DateTime
   due: DateTime
   done: DateTime
   worktime: Duration
@@ -116,7 +110,7 @@ type Desc = string
 #### Tag
 
 ```typescript
-type Tag = string // Match [0-9a-zA-Z\-_]*
+type Tag = string // Matches [0-9a-zA-Z\-_]*
 ```
 
 #### Duration
@@ -134,15 +128,26 @@ type DateTime = number // A timestamp
 ### CRUD
 #### Create
 
-Receive a task, [generates a unique Id](#generate-id) for this task, then insert into database.
+Receives a partial Task, validates values, formats it as a Task (with default
+values) and inserts it into database. Only the description is mandatory. The id
+is [auto-generated](#generate-id). Throws `invalid <property>` and `create
+task failed`.
 
 ```typescript
-function create(task: Task): Id
+type Partial<T> = {
+  [P in keyof T]?: T[P]
+}
+
+type PartialWithDesc<T> = Partial<T> & {
+  desc: Desc
+}
+
+function create(task: PartialWithDesc<Task>): Id
 ```
 
 #### Read
 
-Retrieve a task by Id. Throw `task-not-found`.
+Retrieves a task by Id. Throws `task not found` and `read task failed`.
 
 ```typescript
 function read(id: Id): Task
@@ -150,27 +155,28 @@ function read(id: Id): Task
 
 #### Read All
 
-Retrieve all tasks from database.
+Retrieves all tasks from database. Throws `read all tasks failed`.
 
 ```typescript
-function readAll(): Task[]
+function read_all(): Task[]
 ```
 
 #### Update
 
-Update a task with all params received. Throw `task-not-found`.
+Updates a task with the partial task given. Throws `task not found` and `update
+task failed`.
 
 ```typescript
 type Partial<T> = {
   [P in keyof T]?: T[P]
 }
 
-function update(id Id, task Partial<Task>): void
+function update(id: Id, task: Partial<Task>): void
 ```
 
 #### Delete
 
-Delete a task by id. Throw `task-not-found`.
+Deletes a task by id. Throws `task not found` and `delete task failed`.
 
 ```typescript
 function delete(id: Id): void
@@ -182,112 +188,78 @@ function delete(id: Id): void
 Generate a unique id from a list of task.
 
 ```typescript
-function generateId(tasks: Task[]): Id
+function generate_id(tasks: Task[]): Id
 ```
 
-Algorithm to follow:
+Here the algorithm to follow:
 
 ```typescript
-let newid = 1
+function generate_id(tasks: Task[]): Id {
+  const ids = tasks.map(t => t.id)
+  let new_id = 1
 
-while (true) {
-  if (tasks.map(t => t.id).indexOf(newid) !== -1) {
-    return newid
+  while (true) {
+    if (ids.indexOf(new_id) !== -1) {
+      return new_id
+    }
+    
+    new_id++
   }
-  
-  newid++
 }
 ```
 
-#### Stringify list task
+#### Stringify task props
 
-Transform all properties of a task to string (in order to prepare the task to be displayed in an [list](#list) context).
+Transforms all properties of a task to string (in order to prepare the task to
+be displayed in an [list](#list) or [info](#info) context).
 
-  - **Id**: if task is done, display `-`, otherwise display the id
-  - **Desc**: display desc
-  - **Tags**: display all tags separated by a space
-  - **Duration**: display `<value> <unit>`. Display only one unit, the bigger one. For example, for a duration of 3h 45min 10s, display `4h`. For a duration of -3days 14h 11min 10s, display `3d`. Table of unit: y for years, mo for month, w for week, d for day, h for hour, min for minute, s for second.
-  - **DateTime**: display a duration between now (the moment when the list is displayed) and the datetime (see Duration just above). If duration is positive, display `in <value> <unit>`, otherwise `<value> <unit> ago`.
-  
 ```typescript
-type StringVal<T> = {
+enum Context {
+  List,
+  Info,
+}
+
+type StringProps<T> = {
   [P in keyof T]: string;
 }
 
-function toStringList(task: Task): StringVal<Task>
+function stringify_props(context: Context, task: Task): StringProps<Task>
 ```
 
-#### Stringify info task
+##### List context
 
-Transform all properties of a task to string (in order to prepare the task to be displayed in an [info](#info) context).
+  - **Id**: if task is done, displays `-`, otherwise displays the id.
+  - **Desc**: displays desc.
+  - **Tags**: displays all tags separated by a space.
+  - **Duration**: displays `<value> <unit>`. Displays only one unit, the bigger
+    one. For example, for a duration of 3h 45min 10s, displays `4h`. For a
+    duration of -3days 14h 11min 10s, displays `3d`. Table of unit: y for
+    years, mo for month, w for week, d for day, h for hour, min for minute, s
+    for second.
+  - **DateTime**: displays a duration between now (the moment when the list is
+    displayed) and the datetime (see Duration just above). If duration is
+    positive, displays `in <value> <unit>`, otherwise `<value> <unit> ago`.
 
-  - **Id**: display the id
-  - **Desc**: display desc
-  - **Tags**: display all tags separated by a space
-  - **Duration**: display `<value> <unit>`. Display the full duration. For example, for a duration of 3h 45min 10s, display `3h 45min 10s`. For a duration of -3days 14h 11min 10s, display `3d 14h 11min 10s`. Table of unit: y for years, mo for month, w for week, d for day, h for hour, min for minute, s for second.
-  - **DateTime**: display the full date at locale format (%c).
+##### Info context
 
-```typescript
-type StringVal<T> = {
-  [P in keyof T]: string;
-}
-
-function toStringInfo(task: Task): StringVal<Task>
-```
+  - **Id**: displays the id.
+  - **Desc**: displays desc.
+  - **Tags**: displays all tags separated by a space.
+  - **Duration**: displays `<value> <unit>`. Display the full duration. For
+    example, for a duration of 3h 45min 10s, displays `3h 45min 10s`. For a
+    duration of -3days 14h 11min 10s, displays `3d 14h 11min 10s`. Table of
+    unit: y for years, mo for month, w for week, d for day, h for hour, min for
+    minute, s for second.
+  - **DateTime**: displays the full date at locale format (%c).
 
 ## User interface
 
 A client can have a CLI, a GUI, or both.
 
-### CLI
-
-The command name is `kronos`, and has a shortcut named `k`. In some specific case, the command can be `Kronos`, and its shortcut `K`. If command entered without any parameter, then start the GUI (if exists). Otherwise, the first parameter is the action, and the other parameters are transmitted to the action. Each action has a shortcut:
-
-| Action | Shortcut | Link to function |
-| --- | --- | --- |
-| `add` | `a` | [Add](#add) |
-| `info` | `i` | [Info](#info) |
-| `list` | `l` | [List](#list) |
-| `update` | `u` | [Update](#update) |
-| `delete` | `del` | [Delete](#delete) |
-| `start` | `+` | [Start](#start) |
-| `stop` | `-` | [Stop](#stop) |
-| `toggle start/stop` | `s` | [Toggle](#toggle) |
-| `done` | `do` | [Done](#done) |
-| `undone` | `undo` | [Undone](#undone) |
-| `toggle hide done` | `h` | [ToggleHideDone](#toggle-hide-done) |
-| `worktime` | `w` | [Worktime](#worktime) |
-| `context` | `c` | [Context](#context) |
-
-### GUI
-
-When the GUI mode is started, the [list](#list) action is triggered as main function. So there is no action `list` in GUI mode. But there is an action `toggle hide done` to show and hide done tasks in this list. By default, the first time this `list` is showed up, done tasks are hidden. To change the default behaviour, check out the user configuration [Hide done](#hide-done).
-
-Actions can be triggered by screen events (mouse click, finger touch) or by keyboard events (shortcuts). The list and the info should show data in realtime, otherwise a `refresh` action is needed, in order to have up-to-date informations.
-
-Mappings follow vim mappings:
-
-| Action | Key mappings | Link |
-| --- | --- | --- |
-| `add` | `<a>` | [Add](#add) |
-| `info` | `<i>` | [Info](#info) |
-| `update` | `<u>` | [Update](#update) |
-| `delete` | `<Backspace>`, `<Del>` | [Delete](#delete) |
-| `start` | `<+>` | [Start](#start) |
-| `stop` | `<->` | [Stop](#stop) |
-| `toggle start/stop` | `<Enter>` | [Toggle](#toggle) |
-| `done` | `<d>` | [Done](#done) |
-| `undone` | `<U>` | [Undone](#undone) |
-| `toggle hide done` | `<H>` | [ToggleHideDone](#toggle-hide-done) |
-| `worktime` | `<w>` | [Worktime](#worktime) |
-| `context` | `<c>` | [Context](#context) |
-| `refresh` | `<r>` | Refresh all the GUI (only when there is no realtime showing) |
-| `quit` | `<q>`, `<Esc>` | Quit the GUI mode (only if [CLI](#cli) mode exists also) |
-
 ### Actions
 #### Add
 
-Add a new task.
+Adds a new task. Throws `invalid <property>` and `task add failed`.
 
 ```typescript
 function add(args: string): void
@@ -301,16 +273,18 @@ A `tag` must start by `+` and should not contain any space. For example:
 add("+tag +tag-2 +tag_3")
 ```
 
-A `due` must start by `:` and should contain numbers only.  The full format of a valid due is `:DDMMYY:HHMM` but almost everything can be omitted. Here some example to understand better the concept:
+A `due` must start by `:` and should contain numbers only.  The full format of
+a valid due is `:DDMMYY:HHMM` but almost everything can be omitted. Here some
+example to understand better the concept:
 
+  - *\<year\>  means the current year (year when the command is executed)*
+  - *\<month\> means the current month (month when the command is executed)*
   - *\<day\>   means the current day (day when the command is executed)*
-  - *\<month\> means the current month*
-  - *\<year\>  means the current year*
 
 Full due:
 
 ```typescript
-add(":100518:1200") // 10th of May 2018, 12h00
+add(":100518:1221") // 10th of May 2018, 12h21
 ```
 
 If minutes omitted, set to `00`:
@@ -325,13 +299,15 @@ If hours omitted, set to `00`:
 add(":100518")      // 10th of May 2018, 00h00
 ```
 
-If years omitted, try first the current year. If the final date is exceeded, try with the next year:
+If years omitted, try first the current year. If the final date is exceeded,
+try with the next year:
 
 ```typescript
 add(":1005")        // 10th of May <year> or <year>+1, 00h00
 ```
 
-If months omitted, try first the current month. If the final date is exceeded, try with the next month:
+If months omitted, try first the current month. If the final date is exceeded,
+try with the next month:
 
 ```typescript
 add(":10")          // 10th of <month> or <month>+1 <year>, 00h00
@@ -361,24 +337,27 @@ will result in:
 }
 ```
 
-The order is not important, tags can be everywhere, and due as well. The desc is the remaining of text present after removing tags and due. Both examples end up with the same result:
+The order is not important, tags can be everywhere, and due as well. The desc
+is the remaining of text present after removing tags and due. Both examples end
+up with the same result:
 
 ```typescript
 add("my awesome task +firstTask :3:18 +awesome")
-add("my +awesame awesome :3:18 +firstTask task")
+add("my +awesome awesome :3:18 +firstTask task")
 ```
 
 #### Info
 
-Display a task by id. Throw `task-not-found`.
+Displays a task by id. Throws `task not found` and `task info failed`.
 
 ```typescript
-function info(id: number): void
+function info(id: Id): void
 ```
 
 #### List
 
-Display all tasks. If user option [hide done](#hide-done) is enabled, do not show up done tasks.
+Displays all tasks. If user option [hide done](#hide-done) is enabled, does not
+show up done tasks. Throws `task list failed`.
 
 ```typescript
 function list(): void
@@ -386,13 +365,14 @@ function list(): void
 
 #### Update
 
-Update a task by id. Throw `task-not-found`.
+Updates a task by id. Throws `task not found` and `task update failed`.
 
 ```typescript
-function update(id: number, args: string): void
+function update(id: Id, args: string): void
 ```
 
-Same usage as [Add](#add), except for `tags`. You can remove an existing tag by prefixing it with a `-`.
+Same usage as [Add](#add), except for `tags`. You can remove an existing tag by
+prefixing it with a `-`.
 
 For eg., to remove `oldtag` and add `newtag` to task `42`:
 
@@ -402,70 +382,80 @@ update(42, "-oldtag +newtag")
 
 #### Delete
 
-Remove a task by id. Throw `task-not-found`.
+Deletes a task by id. Throws `task not found` and `task delete failed`.
 
 ```typescript
-function delete(id: number): void
+function delete(id: Id): void
 ```
 
 #### Start
 
-Start a task by id. Throw `task-not-found` and `task-already-started`.
+Starts a task by id. Throws `task not found`, `task already started` and `task
+start failed`.
 
 ```typescript
-function start(id: number): void
+function start(id: Id): void
 ```
 
 Also set `active` property to `now` (when this action is triggered).
 
 #### Stop
 
-Stop a task by id. Throw `task-not-found` and `task-already-stopped`.
+Stops a task by id. Throws `task not found`, `task already stopped` and `task
+stop failed`.
 
 ```typescript
-function stop(id: number): void
+function stop(id: Id): void
 ```
 
-Also update the `worktime` (increase the amount by `now - active`), set `active` to `0`, and set `lastactive` to `now`.
+Also update the `worktime` (increase the amount by `now - active`), set
+`active` to `0`, and set `last_active` to `now`.
 
 #### Toggle
 
-If task active, trigger [stop](#stop) action, otherwise trigger [start](#start) action. Throw `task-not-found`.
+If task is active, triggers [stop](#stop) action, otherwise trigger
+[start](#start) action. Throws `task not found`, `task already started`, `task
+already stopped` and `task toggle failed`.
 
 ```typescript
-function toggle(id: number): void
+function toggle(id: Id): void
 ```
 
 #### Done
 
-Mark a task as done. Throw `task-not-found` and `task-already-done`.
+Marks a task as done. Throws `task not found`, `task already done` and `task
+done failed`.
 
 ```typescript
-function done(id: number): void
+function done(id: Id): void
 ```
 
-If the task is active, trigger [stop](#stop) action first. Then set `done` property to `now`, and set `id` to `id . now`. For example, if the id = 5, and now = 1530716924, then the new id will be 51530716924.
+If the task is active, triggers [stop](#stop) action first. Then sets `done`
+property to `now`, and sets `id` to `${id}${now}`. For example, if the id = 5, and
+now = 1530716924, then the new id will be `51530716924`.
 
 #### Undone
 
-Unmark a task as done. Throw `task-not-found` and `task-not-done`.
+Unmarks a task as done. Throw `task not found`, `task not done` and `task undone
+failed`.
 
 ```typescript
-function undone(id: number): void
+function undone(id: Id): void
 ```
-Also set `done` to `0`, and [generate a new id](#generate-id) for this task.
+
+Also sets `done` to `0`, and [generate a new id](#generate-id) for this task.
 
 #### Toggle hide done
 
-Toggle the user configuration [hide done](#hide-done).
+Toggles the user configuration [hide done](#hide-done).
 
 ```typescript
-function toggleHideDone(): void
+function toggle_hide_done(): void
 ```
 
 #### Worktime
 
-Show the total worktime by tags.
+Shows the total worktime by tags.
 
 ```typescript
 function worktime(args: string): void
@@ -479,8 +469,8 @@ worktime("tag1 tag2")
 
 #### Context
 
-Set a context by tags. It means that only tasks containing tags in context will be shown,
-and when a task is added, these tags will be applied by default.
+Sets a context by tags. It means that only tasks containing tags in context
+will be shown, and when a task is added, these tags will be applied by default.
 
 ```typescript
 function context(args: string): void
@@ -492,23 +482,75 @@ For example, to set the context to `project-A`:
 context("project-A")
 ```
 
-If you list all tasks, you will see only tasks with `project-A` tag.
-If you add a new task, it will automatically get the tag `project-A`.
+If you list all tasks, you will see only tasks with `project-A` tag.  If you
+add a new task, it will automatically get the tag `project-A`.
 
 To clear the context, just call `context` with empty args.
+
+### CLI
+
+The command name is `kronos`, and has a shortcut named `k`. In some specific
+case, the command can be `Kronos`, and its shortcut `K`. If a command is
+entered without any parameter, then start the GUI (if exists). Otherwise, the
+first parameter is the action, and the other parameters are transmitted to the
+action. Each action has a shortcut:
+
+| Action | Shortcut | Link to function |
+| --- | --- | --- |
+| `add` | `a` | [Add](#add) |
+| `info` | `i` | [Info](#info) |
+| `list` | `l` | [List](#list) |
+| `update` | `u` | [Update](#update) |
+| `delete` | `del` | [Delete](#delete) |
+| `start` | `start` | [Start](#start) |
+| `stop` | `stop` | [Stop](#stop) |
+| `toggle start/stop` | `s` | [Toggle](#toggle) |
+| `done` | `do` | [Done](#done) |
+| `undone` | `undo` | [Undone](#undone) |
+| `toggle hide done` | `h` | [ToggleHideDone](#toggle-hide-done) |
+| `worktime` | `w` | [Worktime](#worktime) |
+| `context` | `c` | [Context](#context) |
+
+### GUI
+
+When the GUI mode is started, the [list](#list) action is triggered as main
+function. So there is no action `list` in GUI mode. But there is an action
+`toggle hide done` to show and hide done tasks in this list. By default, the
+first time this `list` is showed up, done tasks are hidden. To change the
+default behaviour, check out the user configuration [Hide done](#hide-done).
+
+Actions are triggered by screen events (mouse click, finger touch) or by
+keyboard events (shortcuts). The list and the info shows data in realtime. If
+it's not possible, a `refresh` action is needed, in order to have up-to-date
+informations.
+
+| Action | Key mapping | Link to function |
+| --- | --- | --- |
+| `add` | `<a>` | [Add](#add) |
+| `info` | `<i>` | [Info](#info) |
+| `update` | `<u>` | [Update](#update) |
+| `delete` | `<Backspace>`, `<Del>` | [Delete](#delete) |
+| `start` | `<s>` | [Start](#start) |
+| `stop` | `<S>` | [Stop](#stop) |
+| `toggle start/stop` | `<Enter>` | [Toggle](#toggle) |
+| `done` | `<d>` | [Done](#done) |
+| `undone` | `<U>` | [Undone](#undone) |
+| `toggle hide done` | `<H>` | [ToggleHideDone](#toggle-hide-done) |
+| `worktime` | `<W>` | [Worktime](#worktime) |
+| `context` | `<C>` | [Context](#context) |
+| `refresh` | `<R>` | Refreshes all the GUI (only when there is no realtime showing) |
+| `quit` | `<q>`, `<Esc>` | Quits the GUI mode (only if [CLI](#cli) mode exists also) |
 
 ## Configuration
 
 The user is able to configure some options.
 
-### Database
+### Enable sync
 
-Contain the path to the database file. In some special case, when the database can't be stored as a file, refer to the database key name. Default: `ROOT_APP_FOLDER/kronos.db`.
-
-### Gist sync
-
-Contain a boolean. If `true`, activate the [Gist](https://gist.github.com/) sync. In this case, the GitHub token is prompted each time the application starts, till the user enters a valid token or the user disables this option. Default: `true`.
+Contains a boolean. If `true`, then tasks will be synchronized with a [Kronos
+realtime server](https://github.com/kronos-io/kronos.server) instance.
 
 ### Hide done
 
-Contain a boolean. If `true`, when the [list](#list) action is triggered, does not display done tasks. Default: `true`.
+Contains a boolean. If `true`, when the [list](#list) action is triggered, does
+not display done tasks. Default: `true`.
