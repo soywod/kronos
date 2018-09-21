@@ -23,7 +23,7 @@ some idea, or even code a Kronos client.
       * [Hide done](#hide-done)
       * [Enable sync](#enable-sync)
   * [Task](#task)
-    * [Model](#model)
+    * [Model](#model-1)
       * [Id](#id)
       * [Desc](#desc)
       * [Tag](#tag)
@@ -59,6 +59,7 @@ some idea, or even code a Kronos client.
     * [GUI](#gui)
   * [Sync](#sync)
     * [Initialisation](#initialisation)
+    * [Host](#host)
     * [User id](#user-id)
     * [Device id](#device-id)
     * [Version](#version)
@@ -98,12 +99,13 @@ The user configuration.
 
 ```typescript
 interface ConfigMap {
-  hide_done: boolean      // Default: true
+  hide_done: boolean // Default: true
 
-  enable_sync: boolean    // Default: false
-  sync_user_id: string    // Default: ''
+  enable_sync   : boolean // Default: false
+  sync_host     : string  // Default: 'localhost:5000'
+  sync_user_id  : string  // Default: ''
   sync_device_id: string  // Default: ''
-  sync_version: number    // Default: 0
+  sync_version  : number  // Default: 0
 }
 
 type Config = {
@@ -120,7 +122,8 @@ tasks.
 
 If `true`, then tasks will be synchronized with a [Kronos realtime
 server](https://github.com/kronos-io/kronos.server) instance. See [sync](#sync)
-section for more informations about `user_id`, `device_id` and `version`.
+section for more informations about `host`, `user_id`, `device_id` and
+`version`.
 
 ## Task
 ### Model
@@ -622,6 +625,10 @@ Once done, your client is connected to the server, and will receive a
 notification every time the database changes. See [server
 notifications](https://github.com/kronos-io/kronos.server#notifications) to
 learn more about how to handle them.
+
+### Host
+
+The `host` is the Kronos server hostname.
 
 ### User id
 
