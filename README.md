@@ -37,11 +37,10 @@ some idea, or even code a Kronos client.
     * [Read All](#read-all)
     * [Update](#update)
     * [Delete](#delete)
-    * [Helpers](#helpers)
-      * [Generate Id](#generate-id)
-      * [Stringify task props](#stringify-task-props)
-        * [List context](#list-context)
-        * [Info context](#info-context)
+    * [Generate Id](#generate-id)
+    * [Stringify task props](#stringify-task-props)
+      * [List context](#list-context)
+      * [Info context](#info-context)
   * [User interface](#user-interface)
     * [Actions](#actions)
       * [Add](#add)
@@ -249,8 +248,7 @@ If [sync](#sync) is enabled, send a
 [delete](https://github.com/kronos-io/kronos.server#delete) request to the
 server, in order to notify all other user's clients.
 
-### Helpers
-#### Generate Id
+### Generate Id
 
 Generate a unique id from a list of task.
 
@@ -275,7 +273,7 @@ function generate_id(tasks: Task[]): Id {
 }
 ```
 
-#### Stringify task props
+### Stringify task props
 
 Transforms all properties of a task to string (in order to prepare the task to
 be displayed in an [list](#list) or [info](#info) context).
@@ -293,7 +291,7 @@ type StringProps<T> = {
 function stringify_props(context: Context, task: Task): StringProps<Task>
 ```
 
-##### List context
+#### List context
 
   - **Id**: if task is done, displays `-`, otherwise displays the id.
   - **Desc**: displays desc.
@@ -307,7 +305,7 @@ function stringify_props(context: Context, task: Task): StringProps<Task>
     displayed) and the datetime (see Duration just above). If duration is
     positive, displays `in <value> <unit>`, otherwise `<value> <unit> ago`.
 
-##### Info context
+#### Info context
 
   - **Id**: displays the id.
   - **Desc**: displays desc.
@@ -614,7 +612,7 @@ informations.
 
 Tasks can be synchronized with a [Kronos realtime
 server](https://github.com/kronos-io/kronos.server) instance. This feature can
-be activated or deactivated from [user configuration](#enable-sync).
+be activated or deactivated from [user options](#enable-sync).
 
 ### Initialization
 
