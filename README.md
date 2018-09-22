@@ -18,27 +18,25 @@ some idea, or even code a Kronos client.
   * [Database](#database)
     * [Read](#read)
     * [Write](#write)
-  * [Config](#config)
-    * [Model](#model)
-      * [Hide done](#hide-done)
-      * [Enable sync](#enable-sync)
-        * [Host](#host)
-        * [User id](#user-id)
-        * [Device id](#device-id)
-        * [Version](#version)
+  * [Options](#options)
+    * [Hide done](#hide-done)
+    * [Enable sync](#enable-sync)
+      * [Host](#host)
+      * [User id](#user-id)
+      * [Device id](#device-id)
+      * [Version](#version)
   * [Task](#task)
-    * [Model](#model-1)
-      * [Id](#id)
-      * [Desc](#desc)
-      * [Tag](#tag)
-      * [Duration](#duration)
-      * [DateTime](#datetime)
-    * [CRUD](#crud)
-      * [Create](#create)
-      * [Read](#read)
-      * [Read All](#read-all)
-      * [Update](#update)
-      * [Delete](#delete)
+    * [Id](#id)
+    * [Desc](#desc)
+    * [Tag](#tag)
+    * [Duration](#duration)
+    * [DateTime](#datetime)
+  * [Repository](#repository)
+    * [Create](#create)
+    * [Read](#read)
+    * [Read All](#read-all)
+    * [Update](#update)
+    * [Delete](#delete)
     * [Helpers](#helpers)
       * [Generate Id](#generate-id)
       * [Stringify task props](#stringify-task-props)
@@ -62,89 +60,82 @@ some idea, or even code a Kronos client.
     * [CLI](#cli)
     * [GUI](#gui)
   * [Sync](#sync)
-    * [Initialisation](#initialisation)
+    * [Initialization](#initialization)
     * [Notifications](#notifications)
 
 ## Database
 
 Each client has its own locale database. It can be a file, a local storage, a
 database or whatever, but it should be packaged with the client, so it's
-possible to use the client offline. It's used to store [tasks](#task) and [user
-configuration](#config).
+possible to use the client offline. It's used to store [tasks](#task) and
+[options](#options).
+
+```typescript
+interface Database {
+  // User tasks
+  tasks: Task[]
+
+  // User options
+  hide_done: boolean
+  enable_sync: boolean
+  sync_host: string
+  sync_user_id: string
+  sync_device_id: string
+  sync_version: number
+}
+```
 
 ### Read
 
-Reads data from database. Throws `read database failed`.
+Reads all data from database. Throws `read database failed`.
 
 ```typescript
-type Data = Task | Config
-
-function read<T extends Data>(): T[]
+function read(): Database
 ```
 
 ### Write
 
-Writes data to the database. Throws `write database failed`.
+Writes partial data to database. Throws `write database failed`.
 
 ```typescript
-type Data = Task | Config
-
-function write<T extends Data>(data: T[]): void
-```
-
-## Config
-
-The user configuration.
-
-### Model
-
-```typescript
-interface ConfigMap {
-  hide_done: boolean // Default: true
-
-  enable_sync   : boolean // Default: false
-  sync_host     : string  // Default: 'localhost:5000'
-  sync_user_id  : string  // Default: ''
-  sync_device_id: string  // Default: ''
-  sync_version  : number  // Default: 0
+type Partial<T> = {
+  [P in keyof T]?: T[P]
 }
 
-type Config = {
-  [P in keyof ConfigMap]?: ConfigMap[P]
-}
+function write(data: Partial<Database>): void
 ```
 
+## Options
 #### Hide done
 
-If `true`, when the [list](#list) action is triggered, does not display done
-tasks.
+If `true`, the [list](#list) action does not display done tasks.
 
 #### Enable sync
 
-If `true`, then tasks will be synchronized with a [Kronos realtime
+If `true`, tasks are synchronized with a [Kronos realtime
 server](https://github.com/kronos-io/kronos.server) instance.
 
 ##### Host
 
-The `host` is the server hostname.
+The realtime server hostname. Eg: `localhost:5000`.
 
 ##### User id
 
-The `user_id` is the user identifier. It should be communicated to every new
-Krono client that needs to be synchronized.
+The user identifier. It should be kept secretly by the users. It will be
+prompted each time a user connects for the first time to a Kronos client.
 
 ##### Device id
 
-The `device_id` is the user's device identifier.
+The user's device identifier. It should be hidden from the users, and should be
+kept by clients.
 
 ##### Version
 
-The `version` is the current version of the database. Each time the locale
-database is modified, set this version with the current date. This way, all
-clients are synchronized with the highest database version.
+The current version of the database. Each time the locale database is modified,
+sets this version with the current date. This way, all clients are synchronized
+with the most recent database version.
 
 ## Task
-### Model
 
 ```typescript
 interface Task {
@@ -159,38 +150,38 @@ interface Task {
 }
 ```
 
-#### Id
+### Id
 
 ```typescript
 type Id = number // An integer > 0
 ```
 
-#### Desc
+### Desc
 
 ```typescript
 type Desc = string
 ```
 
-#### Tag
+### Tag
 
 ```typescript
 type Tag = string // Matches [0-9a-zA-Z\-_]*
 ```
 
-#### Duration
+### Duration
 
 ```typescript
 type Duration = number // An integer
 ```
 
-#### DateTime
+### DateTime
 
 ```typescript
 type DateTime = number // A timestamp
 ```
 
-### CRUD
-#### Create
+## Repository
+### Create
 
 Receives a partial Task, validates values, formats it as a Task (with default
 values) and inserts it into database. Only the description is mandatory. The id
@@ -213,7 +204,7 @@ If [sync](#sync) is enabled, send a
 [create](https://github.com/kronos-io/kronos.server#create) request to the
 server, in order to notify all other user's clients.
 
-#### Read
+### Read
 
 Retrieves a task by Id. Throws `task not found` and `read task failed`.
 
@@ -221,7 +212,7 @@ Retrieves a task by Id. Throws `task not found` and `read task failed`.
 function read(id: Id): Task
 ```
 
-#### Read All
+### Read All
 
 Retrieves all tasks from database. Throws `read all tasks failed`.
 
@@ -229,7 +220,7 @@ Retrieves all tasks from database. Throws `read all tasks failed`.
 function read_all(): Task[]
 ```
 
-#### Update
+### Update
 
 Updates a task with the partial task given. Throws `task not found` and `update
 task failed`.
@@ -246,7 +237,7 @@ If [sync](#sync) is enabled, send a
 [update](https://github.com/kronos-io/kronos.server#update) request to the
 server, in order to notify all other user's clients.
 
-#### Delete
+### Delete
 
 Deletes a task by id. Throws `task not found` and `delete task failed`.
 
@@ -625,7 +616,7 @@ Tasks can be synchronized with a [Kronos realtime
 server](https://github.com/kronos-io/kronos.server) instance. This feature can
 be activated or deactivated from [user configuration](#enable-sync).
 
-### Initialisation
+### Initialization
 
 When the client starts, contact the server and send a
 [login](https://github.com/kronos-io/kronos.server#login) request. `user_id`
@@ -637,11 +628,11 @@ server. You will receive a `user_id`, a `device_id` and a `version`.
     You will receive an up-to-date database that you will have to save into the
     locale database.
   - If the locale `version` is more recent than the server `version`, send a
-    [write-all](https://github.com/kronos-io/kronos.server#read-all) request.
+    [write-all](https://github.com/kronos-io/kronos.server#write-all) request.
 
 ### Notifications
 
 Once initialised, your client is connected to the server, and will receive a
-notification every time the database changes. See [server
+notification each time the database changes. See [server
 notifications](https://github.com/kronos-io/kronos.server#notifications) to
 learn more about how to handle them.
