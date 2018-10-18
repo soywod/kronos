@@ -1,7 +1,8 @@
 # Kronos protocol
 
-Kronos is a synchronized cross-platform task and time manager. In fact, it's a
-group of clients which follow this protocol. Feel free to contribute, share
+Kronos is a synchronized, cross-platform task and time manager, inspired by [Taskwarrior](https://taskwarrior.org) and [Timewarrior](https://taskwarrior.org/docs/timewarrior).
+
+Taskwarrior and Timewarrior are very good and complete tools, but complex and not so easy to understand. [Kronos](https://github.com/soywod/kronos.vim) aims to unify both tools in one, and to be more simple (focusing on what it's really needed). In fact, Kronos is a group of clients which follow this protocol. Feel free to contribute, share
 some idea, or even code a Kronos client.
 
 ## List of clients
