@@ -1,9 +1,14 @@
 # Kronos protocol
 
-Kronos is a synchronized, cross-platform task and time manager, inspired by [Taskwarrior](https://taskwarrior.org) and [Timewarrior](https://taskwarrior.org/docs/timewarrior).
+Kronos is a synchronized, cross-platform task and time manager, inspired by
+[Taskwarrior](https://taskwarrior.org) and
+[Timewarrior](https://taskwarrior.org/docs/timewarrior).
 
-Taskwarrior and Timewarrior are very good and complete tools, but complex and not so easy to understand. [Kronos](https://github.com/soywod/kronos.vim) aims to unify both tools in one, and to be more simple (focusing on what it's really needed). In fact, Kronos is a group of clients which follow this protocol. Feel free to contribute, share
-some idea, or even code a Kronos client.
+Taskwarrior and Timewarrior are very good and complete tools, but complex and
+not so easy to understand. [Kronos](https://github.com/soywod/kronos.vim) aims
+to unify both tools in one, and to be more simple (focusing on what it's really
+needed). In fact, Kronos is a group of clients which follow this protocol. Feel
+free to contribute, share some idea, or even code a Kronos client.
 
 ## List of clients
 
@@ -19,7 +24,7 @@ some idea, or even code a Kronos client.
   * [Database](#database)
     * [Read](#read)
     * [Write](#write)
-  * [Options](#options)
+  * [Config](#config)
     * [Hide done](#hide-done)
     * [Enable sync](#enable-sync)
       * [Host](#host)
@@ -67,15 +72,15 @@ some idea, or even code a Kronos client.
 
 Each client has its own locale database. It can be a file, a local storage, a
 database or whatever, but it should be packaged with the client, so it's
-possible to use the client offline. It's used to store [tasks](#task) and
-[options](#options).
+possible to use the client offline. It's used to store user's [tasks](#task)
+and [config](#config).
 
 ```typescript
 interface Database {
   // User tasks
   tasks: Task[]
 
-  // User options
+  // User config
   hide_done: boolean
   enable_sync: boolean
   sync_host: string
@@ -105,7 +110,7 @@ type Partial<T> = {
 function write(data: Partial<Database>): void
 ```
 
-## Options
+## Config
 #### Hide done
 
 If `true`, the [list](#list) action does not display done tasks.
@@ -185,8 +190,8 @@ type DateTime = number // A timestamp
 
 Receives a partial Task, validates values, formats it as a Task (with default
 values) and inserts it into database. Only the description is mandatory. The id
-is [auto-generated](#generate-id). Throws `invalid <property>` and `create
-task failed`.
+is [auto-generated](#generate-id). Throws `invalid <property>` and `create task
+failed`.
 
 ```typescript
 type Partial<T> = {
@@ -379,7 +384,8 @@ try with the next month:
 add(":10")          // 10th of <month> or <month>+1 <year>, 00h00
 ```
 
-If days omitted, try first the current day. If the final date is exceeded try with the next day:
+If days omitted, try first the current day. If the final date is exceeded try
+with the next day:
 
 ```typescript
 add(":")            // <day> or <day>+1 of <month> <year>, 00h00
@@ -424,7 +430,7 @@ function info(id: Id): void
 #### List
 
 Displays all tasks. The function [`stringify_props`](#list-context) is used to
-format all tasks to show. If user option [hide done](#hide-done) is enabled,
+format all tasks to show. If user config [hide done](#hide-done) is enabled,
 does not show up done tasks. Throws `task list failed`.
 
 ```typescript
@@ -499,8 +505,8 @@ function done(id: Id): void
 ```
 
 If the task is active, triggers [stop](#stop) action first. Then sets `done`
-property to `now`, and sets `id` to `${id}${now}`. For example, if the id = 5, and
-now = 1530716924, then the new id will be `51530716924`.
+property to `now`, and sets `id` to `${id}${now}`. For example, if the id = 5,
+and now = 1530716924, then the new id will be `51530716924`.
 
 #### Undone
 
@@ -613,7 +619,7 @@ informations.
 
 Tasks can be synchronized with a [Kronos realtime
 server](https://github.com/kronos-io/kronos.server) instance. This feature can
-be activated or deactivated from [user options](#enable-sync).
+be activated or deactivated from [user config](#enable-sync).
 
 ### Initialization
 
