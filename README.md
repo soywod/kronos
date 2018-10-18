@@ -8,7 +8,7 @@ Taskwarrior and Timewarrior are very good and complete tools, but complex and
 not so easy to understand. [Kronos](https://github.com/soywod/kronos.vim) aims
 to unify both tools in one, and to be more simple (focusing on what it's really
 needed). In fact, Kronos is a group of clients which follow this protocol. Feel
-free to contribute, share some idea, or even code a Kronos client.
+free to [contribute](#contributing), share some idea, or even code a Kronos client.
 
 ## List of clients
 
@@ -67,6 +67,7 @@ free to contribute, share some idea, or even code a Kronos client.
   * [Sync](#sync)
     * [Initialization](#initialization)
     * [Notifications](#notifications)
+  * [Contributing](#contributing)
 
 ## Database
 
@@ -641,3 +642,18 @@ Once initialised, your client is connected to the server, and will receive a
 notification each time the database changes. See [server
 notifications](https://github.com/kronos-io/kronos.server#notifications) to
 learn more about how to handle them.
+
+## Contributing
+
+Git commit messages follow the [Angular
+Convention](https://gist.github.com/stephenparish/9941e89d80e2bc58a153), but
+contain only a subject.
+
+  > Use imperative, present tense: “change” not “changed” nor
+  > “changes”<br>Don't capitalize first letter<br>No dot (.) at the end
+
+Code should be as clean as possible, variables and functions use the snake case
+convention. A line should never contain more than `80` characters.
+
+Tests should be added for each new functionality. Be sure to run tests before
+proposing a pull request.
