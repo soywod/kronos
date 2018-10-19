@@ -331,7 +331,8 @@ A client can have a CLI, a GUI, or both.
 ### Actions
 #### Add
 
-Adds a new task. Throws `invalid <property>` and `task add failed`.
+Adds a new task. Throws `invalid <property>`, `task already exist` and `task
+add failed`.
 
 ```typescript
 function add(args: string): void
@@ -511,8 +512,8 @@ and now = 1530716924, then the new id will be `51530716924`.
 
 #### Undone
 
-Unmarks a task as done. Throw `task not found`, `task not done` and `task undone
-failed`.
+Unmarks a task as done. Throws `task not found`, `task not done` and `task
+undone failed`.
 
 ```typescript
 function undone(id: Id): void
@@ -522,7 +523,8 @@ Also sets `done` to `0`, and [generate a new id](#generate-id) for this task.
 
 #### Toggle hide done
 
-Toggles the user configuration [hide done](#hide-done).
+Toggles the user configuration [hide done](#hide-done). Throws `task toggle
+hide done failed`.
 
 ```typescript
 function toggle_hide_done(): void
@@ -530,7 +532,7 @@ function toggle_hide_done(): void
 
 #### Worktime
 
-Shows the total worktime by tags.
+Shows the total worktime by tags. Throws `task worktime failed`.
 
 ```typescript
 function worktime(args: string): void
@@ -546,6 +548,7 @@ worktime("tag1 tag2")
 
 Sets a context by tags. It means that only tasks containing tags in context
 will be shown, and when a task is added, these tags will be applied by default.
+Throws `task context failed`.
 
 ```typescript
 function context(args: string): void
